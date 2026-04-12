@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --text: #fff;
+    --text-secondary: rgba(255,255,255,0.55);
+    --color-transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #111;
+  }
+
+  /* CLICK ZONES */
+  .zone {
+    position: fixed;
+    top: 0;
+    width: 30%;
+    height: 100%;
+    z-index: 300;
+    cursor: pointer;
+  }
+  .zone-left  { left: 0; }
+  .zone-right { right: 0; }
+
+  /* SLIDES */
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.04);
+    transition: transform 8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .slide.active .slide-bg { transform: scale(1); }
+  .slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      rgba(0,0,0,0.5) 0%,
+      rgba(0,0,0,0.1) 50%,
+      rgba(0,0,0,0.4) 100%
+    );
+  }
+
+  /* PROGRESS */
+  .progress-container {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    gap: 4px;
+    padding: 10px 24px 0;
+    z-index: 1100;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.22);
+    overflow: hidden;
+    cursor: pointer;
+    transition: background var(--color-transition);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    background: var(--text);
+    transition: background var(--color-transition);
+  }
+  .progress-fill.done { width: 100%; transition: background var(--color-transition); }
+  .progress-fill.animating { animation: fillBar linear forwards; }
+  @keyframes fillBar { from { width: 0% } to { width: 100% } }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    z-index: 1100;
+  }
+  .logo {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--text);
+    transition: background var(--color-transition), transform 0.2s ease;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .logo:hover { transform: scale(1.1); }
+
+  .btn-lang {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s, border-color 0.3s, color var(--color-transition);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+    position: relative;
+    z-index: 360;
+  }
+  .btn-lang:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.45); }
+
+  .lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: rgba(18,18,18,0.9);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px) scale(0.97);
+    transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    min-width: 64px;
+  }
+  .lang-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
+  .lang-option {
+    padding: 9px 16px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.75);
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  .lang-option:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+  /* GRID — Swiss poster */
+  .content {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    align-items: end;
+    padding: 0 24px 40px;
+    z-index: 10;
+    gap: 0 24px;
+  }
+  .col-btn, .col-title, .col-desc {
+    grid-row: 2;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .col-btn   { grid-column: 1; display: flex; align-items: flex-end; padding-bottom: 2px; }
+  .col-title { grid-column: 2; }
+  .col-desc  { grid-column: 3; }
+
+  /* Botão Mais */
+  .btn-mais {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.3s, color var(--color-transition), border-color 0.3s;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.18);
+    white-space: nowrap;
+    position: relative;
+    z-index: 350;
+  }
+  .btn-mais:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.28);
+  }
+  .btn-mais svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  .project-meta {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    transition: color var(--color-transition);
+  }
+  .project-title {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+    transition: color var(--color-transition);
+    word-break: break-word;
+  }
+  .project-desc {
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    transition: color var(--color-transition);
+  }
+
+  /* ─── MENU OVERLAY ─── */
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(0,0,0,0.18);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    padding: 56px 56px;
+    gap: 0 64px;
+  }
+  .menu-overlay.open { opacity: 1; pointer-events: all; }
+
+  /* X — canto superior direito */
+  .menu-close {
+    position: absolute;
+    top: 22px; right: 28px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 1;
+    transition: color 0.2s;
+    z-index: 10;
+    padding: 4px;
+  }
+  .menu-close:hover { color: rgba(255,255,255,0.9); }
+
+  /* Lista nav — coluna esquerda, alinhada na base */
+  .menu-nav-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0;
+    padding-bottom: 4px;
+  }
+  .menu-item {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    padding: 9px 0;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .menu-item:hover,
+  .menu-item.active-item { color: rgba(255,255,255,0.95); }
+
+  /* Preview — coluna direita, alinhada na base */
+  .menu-preview-col {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+  }
+  .preview-panel {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .preview-panel.visible { opacity: 1; pointer-events: all; }
+
+  /* Feed */
+  .preview-feed-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+  .feed-thumb {
+    aspect-ratio: 3/4;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Textos */
+  .preview-textos-list { display: flex; flex-direction: column; width: 100%; }
+  .texto-item {
+    padding: 13px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .texto-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .texto-item:hover { opacity: 0.5; }
+  .texto-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 4px;
+  }
+  .texto-title {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+  }
+
+  /* Sobre */
+  .sobre-label {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 14px;
+  }
+  .sobre-bio {
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: rgba(255,255,255,0.65);
+    max-width: 400px;
+  }
+
+  /* Ver tudo */
+  .vertudo-desc {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.7;
+    max-width: 340px;
+    margin-bottom: 12px;
+  }
+  .vertudo-tag {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* Botão de acesso nos previews — mesma estética do btn-mais, sempre branco */
+  .btn-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: rgba(255,255,255,0.9);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.18);
+    white-space: nowrap;
+  }
+  .btn-preview:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.28);
+  }
+  .btn-preview svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  /* DARK TEXT */
+  body.dark-text { --text: #111; --text-secondary: rgba(0,0,0,0.48); }
+  body.dark-text .btn-mais {
+    border-color: rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  body.dark-text .btn-mais:hover { background: rgba(0,0,0,0.16); border-color: rgba(0,0,0,0.32); }
+  body.dark-text .btn-lang {
+    border-color: rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.07);
+  }
+  body.dark-text .progress-bar { background: rgba(0,0,0,0.18); }
+  body.dark-text .lang-dropdown { background: rgba(235,235,235,0.92); border-color: rgba(0,0,0,0.1); }
+  body.dark-text .lang-option { color: rgba(0,0,0,0.65); }
+  body.dark-text .lang-option:hover { background: rgba(0,0,0,0.06); color: #111; }
+
+  /* Esconde conteúdo dos slides quando menu está aberto */
+  .menu-open .col-btn,
+  .menu-open .col-title,
+  .menu-open .col-desc {
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  /* MOBILE */
+  @media (max-width: 640px) {
+    nav { padding: 18px 18px; }
+    .progress-container { padding: 10px 18px 0; }
+
+    .content {
+      grid-template-columns: 64px 1fr;
+      padding: 0 18px 32px;
+      gap: 0 16px;
+    }
+    .col-desc { display: none; }
+    .col-title { grid-column: 2; }
+
+    .project-title { font-size: 13px; }
+    .project-meta  { font-size: 9px; }
+
+    .menu-glass { inset: 3%; border-radius: 20px; }
+    .menu-inner { flex-direction: column; padding: 72px 32px 40px; gap: 0; align-items: flex-start; justify-content: center; }
+    .menu-preview { display: none; }
+    .menu-item { font-size: 15px; padding: 14px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="zone zone-left"  onclick="prevSlide()"></div>
+<div class="zone zone-right" onclick="nextSlide()"></div>
+
+<div class="progress-container" id="progressContainer"></div>
+
+<nav>
+  <div class="logo" id="logoBtn" onclick="openMenu()"></div>
+  <div style="position:relative;">
+    <button class="btn-lang" id="btnLang" onclick="toggleLang(event)">
+      <span id="langLabel">PT</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <div class="lang-option" onclick="setLang('PT')">PT</div>
+      <div class="lang-option" onclick="setLang('EN')">EN</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay">
+
+  <button class="menu-close" onclick="closeMenu()">&#215;</button>
+
+  <!-- Coluna esquerda: lista nav -->
+  <div class="menu-nav-col">
+    <div class="menu-item active-item" data-target="feed"    onmouseenter="showPreview('feed')"    onclick="handleNav('feed')">Feed</div>
+    <div class="menu-item"             data-target="textos"  onmouseenter="showPreview('textos')"  onclick="handleNav('textos')">Textos</div>
+    <div class="menu-item"             data-target="sobre"   onmouseenter="showPreview('sobre')"   onclick="handleNav('sobre')">Sobre</div>
+    <div class="menu-item"             data-target="vertudo" onmouseenter="showPreview('vertudo')" onclick="handleNav('vertudo')">Ver tudo</div>
+  </div>
+
+  <!-- Coluna direita: preview -->
+  <div class="menu-preview-col">
+
+    <!-- Feed -->
+    <div class="preview-panel visible" id="preview-feed">
+      <div class="preview-feed-grid">
+        <div class="feed-thumb"></div>
+        <div class="feed-thumb"></div>
+        <div class="feed-thumb"></div>
+        <div class="feed-thumb"></div>
+      </div>
+      <button class="btn-preview" onclick="handleNav('feed')">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        Ver feed
+      </button>
+    </div>
+
+    <!-- Textos -->
+    <div class="preview-panel" id="preview-textos">
+      <div class="preview-textos-list">
+        <div class="texto-item">
+          <div class="texto-label">Ensaio · 2024</div>
+          <div class="texto-title">O designer e o cliente sem alma</div>
+        </div>
+        <div class="texto-item">
+          <div class="texto-label">Processo · 2024</div>
+          <div class="texto-title">Como o concretismo brasileiro ainda fala</div>
+        </div>
+        <div class="texto-item">
+          <div class="texto-label">Referência · 2023</div>
+          <div class="texto-title">Peter Saville e a recusa do óbvio</div>
+        </div>
+        <div class="texto-item">
+          <div class="texto-label">Reflexão · 2023</div>
+          <div class="texto-title">Tipografia como argumento, não decoração</div>
+        </div>
+      </div>
+      <button class="btn-preview" onclick="handleNav('textos')">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        Ver textos
+      </button>
+    </div>
+
+    <!-- Sobre -->
+    <div class="preview-panel" id="preview-sobre">
+      <div class="sobre-label">Bruno Rodrigues — São Paulo</div>
+      <div class="sobre-bio">Designer gráfico com foco em identidade visual, design editorial e cultura. Acredito que forma é argumento — e que todo projeto tem algo a dizer antes de ter algo a mostrar.</div>
+      <button class="btn-preview" onclick="handleNav('sobre')">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        Sobre
+      </button>
+    </div>
+
+    <!-- Ver tudo -->
+    <div class="preview-panel" id="preview-vertudo">
+      <div class="vertudo-desc">Uma visão completa dos projetos — identidades, cartazes, motion, editorial. Organizado por categoria e cronologia.</div>
+      <div class="vertudo-tag">Em breve</div>
+      <button class="btn-preview" onclick="handleNav('vertudo')">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        Ver tudo
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="slidesContainer"></div>
+
+<script>
+const SLIDE_DURATION = 6000;
+
+const projects = [
+  {
+    title: "Philadelphia Street Blues",
+    meta: "Identidade Visual · 2024",
+    desc: "Uma banda que recusa a nostalgia fácil. A identidade nasce do jornalismo gráfico americano — tipografia pesada, preto absoluto, textura de tinta.",
+    descEN: "A band that refuses easy nostalgia. The identity draws from American graphic journalism — heavy type, absolute black, ink texture.",
+    bg: "SEU_PROJETO_1.jpg",
+    dark: false
+  },
+  {
+    title: "Paisagem de Inverno",
+    meta: "Cartaz · 2024",
+    desc: "Um filme do sertão. O cartaz usa tratamento cianotípico e tipografia que evoca a rugosidade da terra — não como decoração, mas como argumento visual.",
+    descEN: "A film from the sertão. Cyanotype treatment and typography that evokes the roughness of the land — not as decoration, but as visual argument.",
+    bg: "SEU_PROJETO_2.jpg",
+    dark: false
+  },
+  {
+    title: "RS",
+    meta: "Identidade Visual · 2023",
+    desc: "Contraste como discurso. A marca opera no limite entre o legível e o formal — onde o peso tipográfico é a própria mensagem.",
+    descEN: "Contrast as discourse. The brand at the edge of the legible and the formal — where typographic weight is the message itself.",
+    bg: "SEU_PROJETO_3.jpg",
+    dark: false
+  },
+  {
+    title: "GCE · 20 Anos",
+    meta: "Motion Graphics · 2024",
+    desc: "Uma premiação que chegou à maioridade. O motion abandona a linguagem corporativa — cada frame é um argumento contra o protocolo.",
+    descEN: "An award ceremony that came of age. The motion abandons corporate language — each frame an argument against protocol.",
+    bg: "SEU_PROJETO_4.jpg",
+    dark: false
+  },
+  {
+    title: "Editorial Recorte",
+    meta: "Design Editorial · 2024",
+    desc: "Um blog com opinião tipográfica. Contraste alto, hierarquia rígida, brancos generosos — a forma como argumento, não como suporte.",
+    descEN: "A blog with a typographic opinion. High contrast, rigid hierarchy, generous whites — form as argument, not as support.",
+    bg: "SEU_PROJETO_5.jpg",
+    dark: true
+  },
+  {
+    title: "Identidade Cerâmica",
+    meta: "Branding · 2023",
+    desc: "O produto é artesanal, a marca não pode fingir ser industrial. Formas que respiram, tipografia que não grita — presença sem ostentação.",
+    descEN: "The product is handmade, the brand cannot pretend to be industrial. Forms that breathe, type that doesn't shout.",
+    bg: "SEU_PROJETO_6.jpg",
+    dark: true
+  }
+];
+
+let current = 0;
+let timer = null;
+let langOpen = false;
+let currentLang = 'PT';
+let enterTimeouts = [];
+let menuOpen = false;
+let activePreview = null;
+
+// ─── SLIDES ───
+function buildSlides() {
+  const container = document.getElementById('slidesContainer');
+  const progressContainer = document.getElementById('progressContainer');
+
+  projects.forEach((p, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'slide';
+    slide.id = `slide-${i}`;
+    slide.innerHTML = `
+      <div class="slide-bg" style="background-image:url('${p.bg}')"></div>
+      <div class="slide-overlay"></div>
+      <div class="content">
+        <div class="col-btn">
+          <button class="btn-mais" onclick="handleMais(${i})">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="6" y1="1" x2="6" y2="11"/>
+              <line x1="1" y1="6" x2="11" y2="6"/>
+            </svg>
+            <span class="btn-label">Mais</span>
+          </button>
+        </div>
+        <div class="col-title">
+          <div class="project-meta">${p.meta}</div>
+          <div class="project-title">${p.title}</div>
+        </div>
+        <div class="col-desc">
+          <p class="project-desc" data-pt="${p.desc}" data-en="${p.descEN}">${p.desc}</p>
+        </div>
+      </div>
+    `;
+    container.appendChild(slide);
+
+    const bar = document.createElement('div');
+    bar.className = 'progress-bar';
+    bar.innerHTML = `<div class="progress-fill" id="fill-${i}"></div>`;
+    bar.addEventListener('click', () => goToSlide(i));
+    progressContainer.appendChild(bar);
+  });
+}
+
+function animateIn(slideEl) {
+  enterTimeouts.forEach(t => clearTimeout(t));
+  enterTimeouts = [];
+
+  const els = [
+    slideEl.querySelector('.col-title'),
+    slideEl.querySelector('.col-desc'),
+    slideEl.querySelector('.col-btn'),
+  ];
+
+  els.forEach(el => {
+    if (!el) return;
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(12px)';
+  });
+
+  void slideEl.offsetWidth;
+
+  const delays = [300, 460, 620];
+  els.forEach((el, i) => {
+    if (!el) return;
+    const t = setTimeout(() => {
+      el.style.transition = 'opacity 0.55s ease, transform 0.55s ease';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, delays[i]);
+    enterTimeouts.push(t);
+  });
+}
+
+function goToSlide(index) {
+  current = index;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(`slide-${index}`);
+  target.classList.add('active');
+  animateIn(target);
+
+  document.querySelectorAll('.progress-fill').forEach((f, i) => {
+    f.classList.remove('animating', 'done');
+    f.style.animationDuration = '';
+    void f.offsetWidth;
+    if (i < index) {
+      f.classList.add('done');
+    } else if (i === index) {
+      f.classList.add('animating');
+      f.style.animationDuration = `${SLIDE_DURATION}ms`;
+    }
+  });
+
+  document.body.classList.toggle('dark-text', projects[index].dark);
+  clearTimeout(timer);
+  timer = setTimeout(() => goToSlide((current + 1) % projects.length), SLIDE_DURATION);
+}
+
+function nextSlide() { goToSlide((current + 1) % projects.length); }
+function prevSlide() { goToSlide((current - 1 + projects.length) % projects.length); }
+
+// ─── MENU ───
+function openMenu() {
+  menuOpen = true;
+  document.getElementById('menuOverlay').classList.add('open');
+  document.body.classList.add('menu-open');
+  showPreview('feed');
+}
+
+function closeMenu() {
+  menuOpen = false;
+  document.getElementById('menuOverlay').classList.remove('open');
+  document.body.classList.remove('menu-open');
+}
+
+function showPreview(id) {
+  // Deactivate all items
+  document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item'));
+  document.querySelector(`[data-target="${id}"]`)?.classList.add('active-item');
+
+  // Hide all panels
+  document.querySelectorAll('.preview-panel').forEach(p => p.classList.remove('visible'));
+
+  // Show target
+  const panel = document.getElementById(`preview-${id}`);
+  if (panel) panel.classList.add('visible');
+  activePreview = id;
+}
+
+function handleNav(id) {
+  // Pages not built yet — close menu
+  closeMenu();
+}
+
+// ─── LANG ───
+function toggleLang(e) {
+  e.stopPropagation();
+  langOpen = !langOpen;
+  document.getElementById('langDropdown').classList.toggle('open', langOpen);
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('langLabel').textContent = lang;
+  langOpen = false;
+  document.getElementById('langDropdown').classList.remove('open');
+  document.querySelectorAll('.project-desc').forEach(el => {
+    el.textContent = lang === 'PT' ? el.dataset.pt : el.dataset.en;
+  });
+  document.querySelectorAll('.btn-label').forEach(el => {
+    el.textContent = lang === 'PT' ? 'Mais' : 'More';
+  });
+}
+
+function handleMais(i) {
+  // window.location.href = `/projetos/${i}`;
+  alert(`Abrindo projeto: ${projects[i].title}`);
+}
+
+// Close lang on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#btnLang') && !e.target.closest('#langDropdown')) {
+    langOpen = false;
+    document.getElementById('langDropdown').classList.remove('open');
+  }
+  // Close menu on overlay background click
+  if (e.target === document.getElementById('menuOverlay')) closeMenu();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && menuOpen) { closeMenu(); return; }
+  if (menuOpen) return;
+  if (e.key === 'ArrowRight') nextSlide();
+  if (e.key === 'ArrowLeft')  prevSlide();
+});
+
+buildSlides();
+goToSlide(0);
+</script>
+</body>
+</html>
