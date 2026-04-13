@@ -199,7 +199,28 @@
   }
   .btn-mais:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.4); }
   .col-title-btn-mobile { display: none; }
-  .btn-mais svg { width: 14px; height: 14px; }
+  .btn-mais svg { width: 16px; height: 16px; }
+
+  /* Botão Projetos */
+  .btn-projetos {
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.4s ease;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+    white-space: nowrap;
+  }
+  .btn-projetos:hover { background: rgba(255,255,255,0.2); }
 
   .project-meta {
     font-size: 9px;
@@ -232,18 +253,18 @@
     overflow: hidden;
   }
 
-  /* ─── MENU OVERLAY — z-index 9999, acima de tudo ─── */
+  /* ─── MENU OVERLAY — z-index 900, abaixo da nav ─── */
   .menu-overlay {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 900;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
     background: rgba(0,0,0,0.22);
     backdrop-filter: blur(28px) saturate(160%);
     -webkit-backdrop-filter: blur(28px) saturate(160%);
-    cursor: pointer; /* clicar no fundo fecha */
+    cursor: pointer;
   }
   .menu-overlay.open { opacity: 1; pointer-events: all; }
 
@@ -255,7 +276,8 @@
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: 0 64px;
-    cursor: default; /* cancela o cursor pointer do overlay */
+    cursor: default;
+    z-index: 1;
   }
 
   /* X */
@@ -271,6 +293,7 @@
     transition: color 0.15s;
     padding: 4px 8px;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    z-index: 1;
   }
   .menu-close:hover { color: rgba(255,255,255,0.9); }
 
@@ -411,15 +434,8 @@
   }
   .vertudo-tag:hover { color: rgba(255,255,255,0.9); }
 
-  /* BACKDROP — cobre tudo, clicável para fechar */
-  .menu-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 9998;
-    display: none;
-    cursor: pointer;
-  }
-  .menu-backdrop.open { display: block; }
+  /* BACKDROP — removido, overlay faz tudo */
+  .menu-backdrop { display: none !important; }
 
   /* Mobile preview step 2 */
   .mobile-preview {
@@ -441,21 +457,35 @@
   .mobile-back:hover { color: rgba(255,255,255,0.9); }
   .mobile-preview-content { display: flex; flex-direction: column; gap: 0; }
 
-  /* DARK TEXT */
+  /* Overlay de transição de página */
+  .page-transition {
+    position: fixed; inset: 0;
+    background: #0e0e0e;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+  .page-transition.fade-out { opacity: 1; pointer-events: all; }
   body.dark-text { --text: #111; --text-secondary: rgba(0,0,0,0.48); }
   body.dark-text .btn-mais { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.08); }
   body.dark-text .btn-mais:hover { background: rgba(0,0,0,0.16); }
   body.dark-text .btn-mais-mobile { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.08); }
   body.dark-text .btn-lang { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.07); }
+  body.dark-text .btn-projetos { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.07); color: #111; }
   body.dark-text .progress-bar { background: rgba(0,0,0,0.18); }
   body.dark-text .lang-dropdown { background: rgba(235,235,235,0.92); border-color: rgba(0,0,0,0.1); }
   body.dark-text .lang-option { color: rgba(0,0,0,0.65); }
   body.dark-text .lang-option:hover { background: rgba(0,0,0,0.06); color: #111; }
 
-  /* Esconde conteúdo dos slides quando menu abre */
   .menu-open .col-btn,
   .menu-open .col-title,
   .menu-open .col-desc { opacity: 0; transition: opacity 0.2s ease; }
+
+  /* Esconde projetos e idioma quando menu abre */
+  .menu-open .btn-projetos,
+  .menu-open .btn-lang,
+  .menu-open #langDropdown { opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
 
   /* MOBILE */
   @media (max-width: 640px) {
@@ -476,7 +506,7 @@
     /* Menu mobile */
     .menu-inner-wrap {
       grid-template-columns: 1fr;
-      padding: 64px 32px 48px;
+      padding: 64px 32px 0;
       gap: 0;
       top: 0;
       bottom: auto;
@@ -485,31 +515,38 @@
     .menu-item { font-size: 18px; padding: 14px 0; }
     .menu-close { font-size: 28px; top: 16px; right: 20px; z-index: 10; cursor: pointer; }
 
-    /* Accordion — painel grande fixo no bottom */
+    /* Accordion — posicionado via JS abaixo dos itens */
     .mobile-accordion {
       display: block;
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      left: 0; right: 0;
+      bottom: 0;
       background: rgba(10,10,10,0.92);
       backdrop-filter: blur(24px) saturate(160%);
       -webkit-backdrop-filter: blur(24px) saturate(160%);
       border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 32px 28px 88px;
+      padding: 24px 28px 80px;
       transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-      z-index: 10000;
-      height: 72vh;
-      overflow: hidden;
+      z-index: 800;
     }
     .mobile-accordion.open { transform: translateY(0); }
 
-    /* Feed: card grande centralizado, alternando */
-    .mobile-feed-card {
-      width: 90%;
-      margin: 0 auto;
+    /* Feed: scroll horizontal com cards cortados */
+    .mobile-feed-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .mobile-feed-scroll::-webkit-scrollbar { display: none; }
+    .mobile-feed-scroll .feed-thumb {
+      flex-shrink: 0;
+      width: 52vw;
       aspect-ratio: 3/4;
-      border-radius: 10px;
-      transition: none;
+      border-radius: 8px;
     }
 
     /* Botão fixo bottom right */
@@ -517,7 +554,7 @@
       position: fixed;
       bottom: 40px;
       right: 28px;
-      z-index: 10001;
+      z-index: 801;
     }
 
     /* Tipografia unificada */
@@ -554,21 +591,18 @@
 </head>
 <body>
 
+<div class="page-transition" id="pageTransition"></div>
+
 <div class="zone zone-left"  onclick="prevSlide()"></div>
 <div class="zone zone-right" onclick="nextSlide()"></div>
 
 <div class="progress-container" id="progressContainer"></div>
 
 <nav>
-  <div class="logo" onclick="openMenu()"></div>
-  <div style="position:relative;">
-    <button class="btn-lang" id="btnLang" onclick="toggleLang(event)">
-      <span id="langLabel">PT</span>
-    </button>
-    <div class="lang-dropdown" id="langDropdown">
-      <div class="lang-option" onclick="setLang('PT')">PT</div>
-      <div class="lang-option" onclick="setLang('EN')">EN</div>
-    </div>
+  <div class="logo"></div>
+  <div style="display:flex;align-items:center;gap:8px;position:relative;">
+    <button class="btn-projetos" onclick="openMenu()">Menu</button>
+    <button class="btn-projetos" onclick="navigateTo('projetos.html')">Projetos</button>
   </div>
 </nav>
 
@@ -584,7 +618,6 @@
       <div class="menu-item active-item" data-target="feed"    onmouseenter="showPreview('feed')"    onclick="handleNavClick('feed')">Feed</div>
       <div class="menu-item"             data-target="textos"  onmouseenter="showPreview('textos')"  onclick="handleNavClick('textos')">Textos</div>
       <div class="menu-item"             data-target="sobre"   onmouseenter="showPreview('sobre')"   onclick="handleNavClick('sobre')">Sobre</div>
-      <div class="menu-item"             data-target="vertudo" onmouseenter="showPreview('vertudo')" onclick="handleNav('vertudo')">Ver tudo</div>
     </div>
 
     <div class="menu-preview-col">
@@ -639,7 +672,7 @@ const SLIDE_DURATION = 6000;
 const projects = [
   {
     title: "Memórias Póstumas de Brás Cubas",
-    meta: "Design Editorial · 2025",
+    meta: "Design Editorial",
     desc: "Uma banda que recusa a nostalgia fácil. A identidade nasce do jornalismo gráfico americano — tipografia pesada, preto absoluto, textura de tinta.",
     descEN: "A band that refuses easy nostalgia. The identity draws from American graphic journalism — heavy type, absolute black, ink texture.",
     bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/mpbc.png", dark: false
@@ -653,42 +686,42 @@ const projects = [
   },
   {
     title: "Paisagem de Inverno",
-    meta: "Poster · 2026",
+    meta: "Cartaz",
     desc: "Contraste como discurso. A marca opera no limite entre o legível e o formal — onde o peso tipográfico é a própria mensagem.",
     descEN: "Contrast as discourse. The brand at the edge of the legible and the formal — where typographic weight is the message itself.",
     bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/pi.png", dark: false
   },
   {
     title: "Philadelphia Street Blues",
-    meta: "Identidade Visual · 2024",
+    meta: "Identidade Visual",
     desc: "Uma banda que recusa a nostalgia fácil. A identidade nasce do jornalismo gráfico americano — tipografia pesada, preto absoluto, textura de tinta.",
     descEN: "A band that refuses easy nostalgia. The identity draws from American graphic journalism — heavy type, absolute black, ink texture.",
     bg: "SEU_PROJETO_1.jpg", dark: false
   },
   {
     title: "RS",
-    meta: "Identidade Visual · 2023",
+    meta: "Identidade Visual",
     desc: "Contraste como discurso. A marca opera no limite entre o legível e o formal — onde o peso tipográfico é a própria mensagem.",
     descEN: "Contrast as discourse. The brand at the edge of the legible and the formal — where typographic weight is the message itself.",
     bg: "SEU_PROJETO_3.jpg", dark: false
   },
   {
     title: "GCE · 20 Anos",
-    meta: "Motion Graphics · 2024",
+    meta: "Motion Graphics",
     desc: "Uma premiação que chegou à maioridade. O motion abandona a linguagem corporativa — cada frame é um argumento contra o protocolo.",
     descEN: "An award ceremony that came of age. The motion abandons corporate language — each frame an argument against protocol.",
     bg: "SEU_PROJETO_4.jpg", dark: false
   },
   {
     title: "Editorial Recorte",
-    meta: "Design Editorial · 2024",
+    meta: "Design Editorial",
     desc: "Um blog com opinião tipográfica. Contraste alto, hierarquia rígida, brancos generosos — a forma como argumento, não como suporte.",
     descEN: "A blog with a typographic opinion. High contrast, rigid hierarchy, generous whites — form as argument, not as support.",
     bg: "SEU_PROJETO_5.jpg", dark: true
   },
   {
     title: "Identidade Cerâmica",
-    meta: "Branding · 2023",
+    meta: "Branding",
     desc: "O produto é artesanal, a marca não pode fingir ser industrial. Formas que respiram, tipografia que não grita — presença sem ostentação.",
     descEN: "The product is handmade, the brand cannot pretend to be industrial. Forms that breathe, type that doesn't shout.",
     bg: "SEU_PROJETO_6.jpg", dark: true
@@ -715,9 +748,9 @@ function buildSlides() {
       <div class="content">
         <div class="col-btn">
           <button class="btn-mais" onclick="handleMais(${i})">
-            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
-              <line x1="6" y1="1" x2="6" y2="11"/>
-              <line x1="1" y1="6" x2="11" y2="6"/>
+            <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 7C1 7 4 1 10 1s9 6 9 6-3 6-9 6-9-6-9-6z"/>
+              <circle cx="10" cy="7" r="2.5"/>
             </svg>
           </button>
         </div>
@@ -727,9 +760,9 @@ function buildSlides() {
         </div>
         <div class="col-title-btn-mobile">
           <button class="btn-mais" onclick="handleMais(${i})">
-            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
-              <line x1="6" y1="1" x2="6" y2="11"/>
-              <line x1="1" y1="6" x2="11" y2="6"/>
+            <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 7C1 7 4 1 10 1s9 6 9 6-3 6-9 6-9-6-9-6z"/>
+              <circle cx="10" cy="7" r="2.5"/>
             </svg>
           </button>
         </div>
@@ -770,6 +803,12 @@ function goToSlide(index) {
   timer = setTimeout(() => goToSlide((current + 1) % projects.length), SLIDE_DURATION);
 }
 
+function navigateTo(url) {
+  const t = document.getElementById('pageTransition');
+  t.classList.add('fade-out');
+  setTimeout(() => { window.location.href = url; }, 150);
+}
+
 function nextSlide() { goToSlide((current + 1) % projects.length); }
 function prevSlide() { goToSlide((current - 1 + projects.length) % projects.length); }
 
@@ -796,8 +835,8 @@ function handleNavClick(id) {
   if (isMobile) {
     const acc = document.getElementById('mobileAccordion');
     const contents = {
-      feed: `<div id="mobileFeedCard" class="mobile-feed-card"></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav('feed')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver feed</button></div>`,
-      textos: `<div class="accordion-content"><div class="texto-item"><div class="texto-label">Ensaio · 2024</div><div class="texto-title">O designer e o cliente sem alma</div></div><div class="texto-item"><div class="texto-label">Processo · 2024</div><div class="texto-title">Como o concretismo brasileiro ainda fala</div></div><div class="texto-item"><div class="texto-label">Referência · 2023</div><div class="texto-title">Peter Saville e a recusa do óbvio</div></div><div class="texto-item"><div class="texto-label">Reflexão · 2023</div><div class="texto-title">Tipografia como argumento, não decoração</div></div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav('textos')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver textos</button></div>`,
+      feed: `<div class="mobile-feed-scroll"><div class="feed-thumb" id="mfc0" style="background:rgba(255,255,255,0.15)"></div><div class="feed-thumb" id="mfc1" style="background:rgba(255,255,255,0.12)"></div><div class="feed-thumb" id="mfc2" style="background:rgba(255,255,255,0.1)"></div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav('feed')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver feed</button></div>`,
+      textos: `<div class="accordion-content"><div class="texto-item"><div class="texto-label">Ensaio · 2024</div><div class="texto-title">O designer e o cliente sem alma</div></div><div class="texto-item"><div class="texto-label">Processo · 2024</div><div class="texto-title">Como o concretismo brasileiro ainda fala</div></div><div class="texto-item"><div class="texto-label">Referência · 2023</div><div class="texto-title">Peter Saville e a recusa do óbvio</div></div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav('textos')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver textos</button></div>`,
       sobre: `<div class="accordion-content"><div class="sobre-label">Bruno Rodrigues — São Paulo</div><div class="sobre-bio">Designer gráfico com foco em identidade visual, design editorial e cultura.<br><br>Acredito que forma é argumento — e que todo projeto tem algo a dizer antes de ter algo a mostrar.</div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav('sobre')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Sobre</button></div>`,
       vertudo: `<div class="accordion-content"><div class="vertudo-tag">Ver todos os projetos →<br><br><span style="font-size:13px;color:rgba(255,255,255,0.3);font-weight:300">Identidades, cartazes, motion, editorial.<br>Organizados por categoria e cronologia.</span></div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav('vertudo')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver tudo</button></div>`
     };
@@ -808,9 +847,14 @@ function handleNavClick(id) {
     clearInterval(window._feedInterval);
     if (!isOpen) {
       acc.innerHTML = contents[id] || '';
+      // Posicionar abaixo do último item do menu
+      const lastItem = document.querySelector('.menu-nav-col .menu-item:last-child');
+      if (lastItem) {
+        const rect = lastItem.getBoundingClientRect();
+        acc.style.top = (rect.bottom + 24) + 'px';
+      }
       requestAnimationFrame(() => acc.classList.add('open'));
       acc.dataset.current = id;
-      if (id === 'feed') startFeedAnimation();
     }
     showPreview(id);
   } else {
@@ -818,22 +862,19 @@ function handleNavClick(id) {
   }
 }
 
-let _feedColors = [
-  '#8B2635', '#2C4A7C', '#3D6B4F', '#7A5C2E', '#4A3560'
-];
-let _feedIdx = 0;
 function startFeedAnimation() {
   clearInterval(window._feedInterval);
-  const card = document.getElementById('mobileFeedCard');
-  if (!card) return;
-  card.style.background = _feedColors[0];
-  _feedIdx = 0;
-  window._feedInterval = setInterval(() => {
-    const card = document.getElementById('mobileFeedCard');
-    if (!card) { clearInterval(window._feedInterval); return; }
-    _feedIdx = (_feedIdx + 1) % _feedColors.length;
-    card.style.background = _feedColors[_feedIdx];
-  }, 500);
+  const colors = ['#8B2635','#2C4A7C','#3D6B4F','#7A5C2E','#4A3560'];
+  let idx = 0;
+  const apply = () => {
+    ['mfc0','mfc1','mfc2'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.style.background = colors[(idx + i) % colors.length];
+    });
+    idx = (idx + 1) % colors.length;
+  };
+  apply();
+  window._feedInterval = setInterval(apply, 500);
 }
 
 function showPreview(id) {
