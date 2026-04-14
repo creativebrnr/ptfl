@@ -43,8 +43,9 @@
 
   .logo {
     width: 22px; height: 22px; border-radius: 50%;
-    background: var(--text); flex-shrink: 0;
-    cursor: pointer; display: block; text-decoration: none;
+    background: #111; flex-shrink: 0;
+    cursor: pointer; display: block;
+    transition: background 0.3s ease;
   }
 
   .nav-right {
@@ -223,7 +224,7 @@
   .texto-title { font-size: 12px; font-weight: 400; color: rgba(255,255,255,1); line-height: 1.55; }
 
   .sobre-label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
-  .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.4; color: rgba(255,255,255,1); max-width: 400px; }
+  .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); max-width: 400px; }
 
   .btn-preview {
     display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
@@ -292,7 +293,7 @@
 <body>
 
 <nav id="mainNav">
-  <div class="logo" onclick="navigateTo('portfolio-home-v6.html')" style="background:#111;cursor:pointer;"></div>
+  <div class="logo" onclick="navigateTo('portfolio-home-v6.html')" style="cursor:pointer;"></div>
   <div class="nav-right">
     <button class="btn-projetos" onclick="navigateTo('projetos.html')">Projetos</button>
     <button class="btn-projetos" onclick="openMenu()">Menu</button>
@@ -311,10 +312,10 @@
     <div class="menu-preview-col">
       <div class="preview-panel visible" id="preview-feed">
         <div class="preview-feed-grid">
-          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">O silêncio entre dois elementos é tão importante quanto os elementos em si. Aprendi isso lendo Ruder...</div></div>
-          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve à leitura...</div></div>
-          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50 parecem feitas ontem...</div></div>
-          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha. Demorei duas horas...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">O silêncio entre dois elementos é tão importante quanto os elementos em si. Aprendi isso lendo Ruder...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve à leitura...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50 parecem feitas ontem...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha. Demorei duas horas...</div></div>
         </div>
         <button class="btn-preview" onclick="handleNav('feed')">
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
@@ -375,6 +376,7 @@ function buildGrid() {
     const meta  = currentLang === 'PT' ? p.meta  : p.metaEN;
     const item = document.createElement('div');
     item.className = 'project-item';
+    item.onclick = () => navigateTo('case.html');
     item.innerHTML = `
       <div class="project-img">
         <div class="project-img-bg" style="background-image:url('${p.bg}')"></div>

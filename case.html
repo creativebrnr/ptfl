@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --text: #111;
+    --text-secondary: rgba(0,0,0,0.45);
+    --bg: #f5f5f3;
+    --pad: 24px;
+    --radius: 10px;
+    --gap: 22px;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px var(--pad);
+    z-index: 400;
+    background: transparent;
+  }
+
+  .logo {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #111; flex-shrink: 0; cursor: pointer; display: block;
+  }
+  .nav-right { display: flex; align-items: center; gap: 8px; }
+
+  /* Botões — preto por padrão (página clara) */
+  .btn-projetos {
+    height: 30px; padding: 0 14px; border-radius: 100px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.07);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: #111;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9px; font-weight: 400; letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.3s, border-color 0.3s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
+    white-space: nowrap; display: inline-flex; align-items: center;
+  }
+  .btn-projetos:hover { background: rgba(0,0,0,0.12); }
+
+  /* Sobre hero escura — vira branco */
+  nav.over-hero .btn-projetos {
+    border-color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  nav.over-hero .logo { background: #fff; }
+
+  /* ── MENU OVERLAY ── */
+  .menu-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+    background: rgba(0,0,0,0.22);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    cursor: pointer;
+  }
+  .menu-overlay.open { opacity: 1; pointer-events: all; }
+  .menu-inner-wrap {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 56px; display: grid;
+    grid-template-columns: 200px 1fr; gap: 0 64px;
+    cursor: default; z-index: 1;
+  }
+  .menu-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none; color: rgba(255,255,255,0.4);
+    cursor: pointer; font-size: 22px; font-weight: 300; line-height: 1;
+    transition: color 0.15s; padding: 4px 8px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; z-index: 10000;
+  }
+  .menu-close:hover { color: rgba(255,255,255,0.9); }
+  .menu-nav-col { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 4px; }
+  .menu-item {
+    font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.35);
+    cursor: pointer; padding: 7px 0; transition: color 0.15s ease;
+    white-space: nowrap; user-select: none; line-height: 1.4;
+  }
+  .menu-item:hover, .menu-item.active-item { color: rgba(255,255,255,0.95); }
+  .menu-preview-col { position: relative; display: flex; align-items: flex-end; }
+  .preview-panel {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    justify-content: flex-end; opacity: 0; pointer-events: none; padding-bottom: 4px;
+  }
+  .preview-panel.visible { opacity: 1; pointer-events: all; }
+  .preview-feed-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; width: 100%; }
+  .feed-thumb { aspect-ratio: 3/4; border-radius: 10px; background: #e8e8e8; border: none; }
+  .feed-thumb-snippet { margin-top: 8px; font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .preview-textos-list { display: flex; flex-direction: column; width: 100%; }
+  .texto-item { padding: 13px 0; border-top: 1px solid rgba(255,255,255,0.08); transition: opacity 0.15s; }
+  .texto-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .texto-item:hover { opacity: 0.5; }
+  .texto-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+  .texto-title { font-size: 12px; font-weight: 400; color: rgba(255,255,255,1); line-height: 1.55; }
+  .sobre-label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+  .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); max-width: 400px; }
+  .btn-preview {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
+    padding: 9px 18px; border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.28); background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: rgba(255,255,255,0.9);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9px; font-weight: 400; letter-spacing: 0.08em;
+    cursor: pointer; transition: background 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+    white-space: nowrap; width: fit-content;
+  }
+  .btn-preview:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
+  .btn-preview svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .mobile-accordion { display: none; }
+
+  /* ── MAIN ── */
+  main {
+    padding-top: 80px;
+    padding-bottom: 120px;
+  }
+
+  /* ── CASE WRAPPER ── */
+  .case-wrapper {
+    padding: 0 var(--pad);
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  /* Cada bloco ocupa largura total */
+  .case-hero,
+  .case-meta,
+  .case-pair,
+  .case-text { width: 100%; }
+
+  /* ── IMAGEM PRINCIPAL 16:9 — largura total ── */
+  .case-hero {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #ddd;
+  }
+  .case-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ── METADADOS — nome alinhado à col 1, descrição à col 2 ── */
+  .case-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+  }
+  .case-meta-value {
+    font-size: 12px; font-weight: 400;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text); line-height: 1.3;
+  }
+  .case-meta-desc {
+    font-size: 12px; font-weight: 400;
+    line-height: 1.55; color: var(--text);
+  }
+
+  /* ── PAR DE VERTICAIS ── */
+  .case-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+  }
+  .case-vertical {
+    aspect-ratio: 4/5;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #ddd;
+  }
+  .case-vertical:first-child { grid-column: auto; }
+  .case-vertical:last-child  { grid-column: auto; }
+  .case-vertical img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ── TEXTO — alinhado à segunda imagem vertical ── */
+  .case-text {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+  }
+  .case-text-body {
+    grid-column: 2;
+    font-size: 12px; font-weight: 400;
+    line-height: 1.55; color: var(--text);
+  }
+
+  /* ── MAIS PROJETOS ── */
+  .more-projects {
+    padding: 0 var(--pad) 120px;
+    margin-top: 0;
+  }
+  .more-label {
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+  /* 4 colunas masonry igual ao feed */
+  .more-grid {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--gap);
+  }
+  .more-col {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    flex: 1;
+    min-width: 0;
+  }
+  .more-item { cursor: pointer; }
+  .more-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: var(--radius);
+    background: #ddd;
+    margin-bottom: 10px;
+  }
+  .more-cat {
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-secondary); margin-bottom: 4px;
+  }
+  .more-title {
+    font-size: 12px; font-weight: 400;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text); line-height: 1.3;
+  }
+
+  @media (max-width: 640px) {
+    .more-grid {
+      flex-direction: column;
+      gap: 0;
+    }
+    .more-col {
+      flex: none;
+      width: 100%;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .more-col + .more-col { margin-top: 32px; }
+    .more-img {
+      aspect-ratio: 3/4;
+      width: 100%;
+    }
+  }
+  .case-credits {
+    padding: 80px var(--pad) 120px;
+  }
+  .case-credits-line {
+    width: 100%;
+    height: 1px;
+    background: rgba(0,0,0,0.12);
+    margin-bottom: 32px;
+  }
+  .case-credits-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: fit-content;
+  }
+  .credit-label {
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-secondary); margin-bottom: 6px;
+  }
+  .credit-value {
+    font-size: 12px; font-weight: 400;
+    line-height: 1.55; color: var(--text);
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 18px var(--pad); }
+    .case-wrapper { gap: 32px; }
+    .case-meta { grid-template-columns: 1fr; }
+    .case-pair { grid-template-columns: 1fr; }
+    .case-text { grid-template-columns: 1fr; }
+    .case-text-body { grid-column: 1; }
+    .case-credits-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+
+    .menu-inner-wrap { grid-template-columns: 1fr; padding: 64px 32px 0; top: 0; bottom: auto; }
+    .menu-preview-col { display: none; }
+    .menu-item { font-size: 18px; padding: 14px 0; }
+    .menu-close { font-size: 28px; top: 16px; right: 20px; }
+
+    .mobile-accordion {
+      display: block; position: fixed; left: 0; right: 0; bottom: 0;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 24px 28px 80px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 800;
+    }
+    .mobile-accordion.open { transform: translateY(0); }
+    .feed-scroll-item { flex-shrink: 0; width: 52vw; }
+    .mobile-feed-scroll {
+      display: flex; gap: 20px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .mobile-feed-scroll::-webkit-scrollbar { display: none; }
+    .mobile-feed-scroll .feed-thumb { width: 100%; aspect-ratio: 3/4; border-radius: 10px; background: #e8e8e8; }
+    .feed-scroll-snippet { margin-top: 6px; font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .accordion-action { position: fixed; bottom: 40px; right: 28px; z-index: 801; }
+    .accordion-content .texto-item { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .accordion-content .texto-label, .accordion-content .sobre-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 6px; font-weight: 400; }
+    .accordion-content .texto-title, .accordion-content .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); }
+    .mobile-accordion .btn-preview { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); }
+  }
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="logo" onclick="navigateTo('portfolio-home-v6.html')"></div>
+  <div class="nav-right">
+    <button class="btn-projetos" onclick="navigateTo('projetos.html')">Projetos</button>
+    <button class="btn-projetos" onclick="openMenu()">Menu</button>
+  </div>
+</nav>
+
+<!-- MENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
+  <button class="menu-close" onclick="closeMenu()">&#215;</button>
+  <div class="menu-inner-wrap" onclick="event.stopPropagation()">
+    <div class="menu-nav-col">
+      <div class="menu-item" data-target="feed"   onmouseenter="showPreview('feed')"   onclick="handleNavClick('feed')">Feed</div>
+      <div class="menu-item" data-target="textos" onmouseenter="showPreview('textos')" onclick="handleNavClick('textos')">Textos</div>
+      <div class="menu-item" data-target="sobre"  onmouseenter="showPreview('sobre')"  onclick="handleNavClick('sobre')">Sobre</div>
+    </div>
+    <div class="menu-preview-col">
+      <div class="preview-panel visible" id="preview-feed">
+        <div class="preview-feed-grid">
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">O silêncio entre dois elementos é tão importante quanto os elementos em si...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50...</div></div>
+          <div><div class="feed-thumb"></div><div class="feed-thumb-snippet">Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha...</div></div>
+        </div>
+        <button class="btn-preview" onclick="navigateTo('feed.html')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          Ver feed
+        </button>
+      </div>
+      <div class="preview-panel" id="preview-textos">
+        <div class="preview-textos-list">
+          <div class="texto-item"><div class="texto-label">Ensaio · 2024</div><div class="texto-title">O designer e o cliente sem alma</div></div>
+          <div class="texto-item"><div class="texto-label">Processo · 2024</div><div class="texto-title">Como o concretismo brasileiro ainda fala</div></div>
+          <div class="texto-item"><div class="texto-label">Referência · 2023</div><div class="texto-title">Peter Saville e a recusa do óbvio</div></div>
+        </div>
+        <button class="btn-preview" onclick="handleNav('textos')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          Ver textos
+        </button>
+      </div>
+      <div class="preview-panel" id="preview-sobre">
+        <div class="sobre-label">Bruno Rodrigues — São Paulo</div>
+        <div class="sobre-bio">Designer gráfico com foco em identidade visual, design editorial e cultura. Acredito que forma é argumento.</div>
+        <button class="btn-preview" onclick="handleNav('sobre')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          Sobre
+        </button>
+      </div>
+    </div>
+    <div class="mobile-accordion" id="mobileAccordion"></div>
+  </div>
+</div>
+
+<main>
+  <div class="case-wrapper">
+
+    <!-- ① HERO 16:9 -->
+    <div class="case-hero">
+      <img src="SEU_PROJETO_HERO.jpg" alt="">
+    </div>
+
+    <!-- ② METADADOS -->
+    <div class="case-meta">
+      <div class="case-meta-value">Philadelphia<br>Street Blues</div>
+      <div class="case-meta-desc">Uma banda que recusa a nostalgia fácil. A identidade nasce do jornalismo gráfico americano — tipografia pesada, preto absoluto, textura de tinta que parece impressa a frio.</div>
+    </div>
+
+    <!-- ③ PAR DE VERTICAIS 4:5 -->
+    <div class="case-pair">
+      <div class="case-vertical"><img src="SEU_PROJETO_VERTICAL_1.jpg" alt=""></div>
+      <div class="case-vertical"><img src="SEU_PROJETO_VERTICAL_2.jpg" alt=""></div>
+    </div>
+
+    <!-- ④ DESAFIO -->
+    <div class="case-text">
+      <div class="case-text-body">O desafio era criar uma identidade que soasse autêntica sem ser nostálgica. O blues como ponto de partida — mas o jornalismo gráfico americano como linguagem visual. Tipografia pesada, preto absoluto, textura de tinta que parece impressa a frio.</div>
+    </div>
+
+    <!-- ⑤ SEGUNDA HERO 16:9 -->
+    <div class="case-hero">
+      <img src="SEU_PROJETO_HERO_2.jpg" alt="">
+    </div>
+
+    <!-- ⑥ SEGUNDO PAR DE VERTICAIS -->
+    <div class="case-pair">
+      <div class="case-vertical"><img src="SEU_PROJETO_VERTICAL_3.jpg" alt=""></div>
+      <div class="case-vertical"><img src="SEU_PROJETO_VERTICAL_4.jpg" alt=""></div>
+    </div>
+
+    <!-- ⑦ SOLUÇÃO -->
+    <div class="case-text">
+      <div class="case-text-body">A escolha tipográfica parte de uma grotesca condensada de alto contraste — o tipo que aparecia nas manchetes de tabloides dos anos 50. Combinada com papel craft e acabamento a frio, cria um sistema visual que soa artesanal sem fingir ser vintage.</div>
+    </div>
+
+  </div>
+
+  <!-- CRÉDITOS -->
+  <div class="case-credits">
+    <div class="case-credits-line"></div>
+    <div class="case-credits-grid">
+      <div>
+        <div class="credit-label">Cliente</div>
+        <div class="credit-value">Philadelphia Street Blues</div>
+      </div>
+      <div>
+        <div class="credit-label">Design</div>
+        <div class="credit-value">Bruno Rodrigues</div>
+      </div>
+      <div>
+        <div class="credit-label">Direção de Arte</div>
+        <div class="credit-value">Bruno Rodrigues</div>
+      </div>
+      <div>
+        <div class="credit-label">Conceito</div>
+        <div class="credit-value">Bruno Rodrigues</div>
+      </div>
+      <div>
+        <div class="credit-label">Fotografia</div>
+        <div class="credit-value">Bruno Rodrigues</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIS PROJETOS -->
+  <div class="more-projects">
+    <div class="case-credits-line"></div>
+    <div class="more-label">Mais projetos</div>
+    <div class="more-grid">
+      <div class="more-col">
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Identidade Visual</div>
+          <div class="more-title">Paisagem de Inverno</div>
+        </div>
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Motion Graphics</div>
+          <div class="more-title">GCE · 20 Anos</div>
+        </div>
+      </div>
+      <div class="more-col">
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Design Editorial</div>
+          <div class="more-title">Memórias Póstumas de Brás Cubas</div>
+        </div>
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Branding</div>
+          <div class="more-title">Identidade Cerâmica</div>
+        </div>
+      </div>
+      <div class="more-col">
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Cartaz</div>
+          <div class="more-title">Pra Mim</div>
+        </div>
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Design Editorial</div>
+          <div class="more-title">Editorial Recorte</div>
+        </div>
+      </div>
+      <div class="more-col">
+        <div class="more-item" onclick="navigateTo('case.html')" style="cursor:pointer">
+          <div class="more-img"></div>
+          <div class="more-cat">Identidade Visual</div>
+          <div class="more-title">RS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let menuOpen = false;
+
+function openMenu() {
+  menuOpen = true;
+  document.getElementById('menuOverlay').classList.add('open');
+  document.body.classList.add('menu-open');
+  showPreview('feed');
+}
+
+function closeMenu() {
+  menuOpen = false;
+  document.getElementById('menuOverlay').classList.remove('open');
+  document.body.classList.remove('menu-open');
+  const acc = document.getElementById('mobileAccordion');
+  if (acc) { acc.classList.remove('open'); acc.innerHTML = ''; acc.dataset.current = ''; }
+}
+
+function showPreview(id) {
+  document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item'));
+  document.querySelector('[data-target="' + id + '"]')?.classList.add('active-item');
+  document.querySelectorAll('.preview-panel').forEach(p => p.classList.remove('visible'));
+  document.getElementById('preview-' + id)?.classList.add('visible');
+}
+
+function handleNavClick(id) {
+  if (window.innerWidth <= 640) {
+    const acc = document.getElementById('mobileAccordion');
+    const contents = {
+      feed: '<div class="mobile-feed-scroll"><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-scroll-snippet">O silêncio entre dois elementos é tão importante quanto os elementos em si...</div></div><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-scroll-snippet">Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve...</div></div><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-scroll-snippet">Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50...</div></div><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-scroll-snippet">Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha...</div></div></div><div class="accordion-action"><button class="btn-preview" onclick="navigateTo(\'feed.html\')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver feed</button></div>',
+      textos: '<div class="accordion-content"><div class="texto-item"><div class="texto-label">Ensaio · 2024</div><div class="texto-title">O designer e o cliente sem alma</div></div><div class="texto-item"><div class="texto-label">Processo · 2024</div><div class="texto-title">Como o concretismo brasileiro ainda fala</div></div><div class="texto-item"><div class="texto-label">Referência · 2023</div><div class="texto-title">Peter Saville e a recusa do óbvio</div></div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav(\'textos\')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver textos</button></div>',
+      sobre: '<div class="accordion-content"><div class="sobre-label">Bruno Rodrigues — São Paulo</div><div class="sobre-bio">Designer gráfico com foco em identidade visual, design editorial e cultura.</div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav(\'sobre\')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Sobre</button></div>'
+    };
+    const isOpen = acc.classList.contains('open') && acc.dataset.current === id;
+    acc.classList.remove('open'); acc.innerHTML = ''; acc.dataset.current = '';
+    if (!isOpen) {
+      acc.innerHTML = contents[id] || '';
+      const lastItem = document.querySelector('.menu-nav-col .menu-item:last-child');
+      if (lastItem) acc.style.top = (lastItem.getBoundingClientRect().bottom + 24) + 'px';
+      requestAnimationFrame(() => acc.classList.add('open'));
+      acc.dataset.current = id;
+    }
+    showPreview(id);
+  } else {
+    handleNav(id);
+  }
+}
+
+function handleNav(id) {
+  closeMenu();
+  if (id === 'feed') navigateTo('feed.html');
+}
+
+function navigateTo(url) {
+  document.body.style.transition = 'opacity 0.15s ease';
+  document.body.style.opacity = '0';
+  setTimeout(() => { window.location.href = url; }, 150);
+}
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  const navBottom = nav.getBoundingClientRect().height;
+  const heroes = document.querySelectorAll('.case-hero');
+  let overHero = false;
+  heroes.forEach(h => {
+    const r = h.getBoundingClientRect();
+    if (r.top <= navBottom && r.bottom >= 0) overHero = true;
+  });
+  nav.classList.toggle('over-hero', overHero);
+});
+
+document.body.style.opacity = '0';
+document.body.style.transition = 'opacity 0.3s ease';
+setTimeout(() => { document.body.style.opacity = '1'; }, 50);
+window.addEventListener('load', () => { document.body.style.opacity = '1'; });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && menuOpen) closeMenu();
+});
+</script>
+</body>
+</html>

@@ -493,6 +493,8 @@
   .menu-open .col-title,
   .menu-open .col-desc { opacity: 0; transition: opacity 0.2s ease; }
 
+  .menu-open .zone { pointer-events: none; }
+
   /* Esconde projetos e idioma quando menu abre */
   .menu-open .btn-projetos,
   .menu-open .btn-lang,
@@ -936,7 +938,7 @@ function setLang(lang) {
 }
 
 function handleMais(i) {
-  alert(`Abrindo projeto: ${projects[i].title}`);
+  navigateTo('case.html');
 }
 
 document.addEventListener('click', (e) => {
