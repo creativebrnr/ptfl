@@ -202,7 +202,7 @@
   .btn-mais svg { width: 16px; height: 16px; }
 
   /* Botão Projetos */
-  .btn-projetos {
+.btn-projetos {
     height: 30px;
     padding: 0 14px;
     border-radius: 100px;
@@ -216,11 +216,14 @@
     font-weight: 400;
     letter-spacing: 0.08em;
     cursor: pointer;
-    transition: background 0.2s, color 0.4s ease;
+    transition: background 0.2s, color 0.3s, border-color 0.3s;
     box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
   }
-  .btn-projetos:hover { background: rgba(255,255,255,0.2); }
+  .btn-projetos:hover { background: rgba(255,255,255,0.22); }
+  body.dark-text .btn-projetos { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.07); color: #111; box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5); }
 
   .project-meta {
     font-size: 9px;
@@ -261,12 +264,13 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
-    background: rgba(0,0,0,0.22);
-    backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    background: rgba(0,0,0,0.20);
+    backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
     cursor: pointer;
   }
   .menu-overlay.open { opacity: 1; pointer-events: all; }
+
 
   /* Wrapper interno — não propaga clique para o backdrop */
   .menu-inner-wrap {
@@ -506,7 +510,7 @@
     .progress-container { padding: 10px 18px 0; }
     .content {
       grid-template-columns: 1fr auto;
-      padding: 0 18px 32px;
+      padding: 0 18px 26px;
       gap: 0 16px;
       align-items: center;
     }
@@ -534,9 +538,9 @@
       position: fixed;
       left: 0; right: 0;
       bottom: 0;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(24px) saturate(160%);
-      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      background: rgba(0,0,0,0.20);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
       border-top: 1px solid rgba(255,255,255,0.08);
       padding: 24px 28px 80px;
       transform: translateY(100%);
@@ -607,9 +611,28 @@
     }
     .mobile-accordion .btn-preview svg { stroke: rgba(255,255,255,0.9); }
   }
+
+  /* ── CURSOR NEGATIVO ── */
+  * { cursor: none !important; }
+  #custom-cursor {
+    position: fixed;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: width 0.15s ease, height 0.15s ease;
+    top: 0; left: 0;
+  }
+  #custom-cursor.hovering {
+    width: 11px; height: 11px;
+  }
 </style>
 </head>
 <body>
+<div id="custom-cursor"></div>
 
 <div class="page-transition" id="pageTransition"></div>
 
@@ -957,6 +980,27 @@ document.addEventListener('keydown', (e) => {
 
 buildSlides();
 goToSlide(0);
+
+// Cursor personalizado
+const cursor = document.getElementById('custom-cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .more-item, .feed-scroll-item')) {
+    cursor.classList.add('hovering');
+  } else {
+    cursor.classList.remove('hovering');
+  }
+});
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .feed-scroll-item, .more-item')) {
+    cursor.classList.add('hovering');
+  } else {
+    cursor.classList.remove('hovering');
+  }
+});
 </script>
 </body>
 </html>

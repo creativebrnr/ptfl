@@ -33,13 +33,9 @@
     align-items: center;
     padding: 20px var(--pad);
     z-index: 400;
-    background: var(--bg);
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-  }
-  nav.scrolled {
     background: transparent;
-    box-shadow: none;
   }
+  
 
   .logo {
     width: 22px; height: 22px; border-radius: 50%;
@@ -53,8 +49,9 @@
   }
 
   /* Pill — estado claro (idêntico ao dark-text do home) */
-  .btn-projetos {
-    height: 30px; padding: 0 14px;
+.btn-projetos {
+    height: 30px;
+    padding: 0 14px;
     border-radius: 100px;
     border: 1px solid rgba(0,0,0,0.18);
     background: rgba(0,0,0,0.07);
@@ -62,11 +59,15 @@
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     color: #111;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 9px; font-weight: 400; letter-spacing: 0.08em;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
     cursor: pointer;
     transition: background 0.2s, color 0.3s, border-color 0.3s;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
-    white-space: nowrap; display: inline-flex; align-items: center;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
   }
   .btn-projetos:hover { background: rgba(0,0,0,0.12); }
 
@@ -86,22 +87,23 @@
     position: relative;
   }
   .btn-lang:hover { background: rgba(0,0,0,0.12); }
-  .btn-lang svg { width: 14px; height: 14px; }
+  .btn-lang svg { width: 11px; height: 11px; }
 
-  /* Ao scrollar sobre imagens — vira versão escura (idêntico ao default do home) */
   nav.scrolled .btn-projetos {
     border-color: rgba(255,255,255,0.28);
     background: rgba(255,255,255,0.12);
     color: #fff;
     box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
   }
+  /* Ao scrollar sobre imagens — vira versão escura (idêntico ao default do home) */
+
   nav.scrolled .btn-lang {
     border-color: rgba(255,255,255,0.28);
     background: rgba(255,255,255,0.12);
     color: #fff;
     box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
   }
-  nav.scrolled .logo { background: #fff; }
+  nav.scrolled .logo { background: rgba(10,10,10,0.92); }
 
   .lang-dropdown {
     position: absolute; top: calc(100% + 8px); right: 0;
@@ -168,12 +170,13 @@
     z-index: 900;
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
-    background: rgba(0,0,0,0.22);
-    backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    background: rgba(0,0,0,0.20);
+    backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
     cursor: pointer;
   }
   .menu-overlay.open { opacity: 1; pointer-events: all; }
+
 
   .menu-inner-wrap {
     position: absolute; bottom: 0; left: 0; right: 0;
@@ -254,9 +257,9 @@
 
     .mobile-accordion {
       display: block; position: fixed; left: 0; right: 0; bottom: 0;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(24px) saturate(160%);
-      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      background: rgba(0,0,0,0.20);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
       border-top: 1px solid rgba(255,255,255,0.08);
       padding: 24px 28px 80px;
       transform: translateY(100%);
@@ -288,9 +291,28 @@
     }
     .project-img { aspect-ratio: 4/5; }
   }
+
+  /* ── CURSOR NEGATIVO ── */
+  * { cursor: none !important; }
+  #custom-cursor {
+    position: fixed;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: width 0.15s ease, height 0.15s ease;
+    top: 0; left: 0;
+  }
+  #custom-cursor.hovering {
+    width: 11px; height: 11px;
+  }
 </style>
 </head>
 <body>
+<div id="custom-cursor"></div>
 
 <nav id="mainNav">
   <div class="logo" onclick="navigateTo('portfolio-home-v6.html')" style="cursor:pointer;"></div>
@@ -353,14 +375,14 @@
 
 <script>
 const projects = [
-  { title: "Memórias Póstumas de Brás Cubas", titleEN: "Memórias Póstumas de Brás Cubas", meta: "Design Editorial", metaEN: "Editorial Design", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/mpbc.png" },
-  { title: "Pra Mim", titleEN: "Pra Mim", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/bb.png" },
-  { title: "Paisagem de Inverno", titleEN: "Winter Landscape", meta: "Cartaz", metaEN: "Poster", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/pi.png" },
-  { title: "Philadelphia Street Blues", titleEN: "Philadelphia Street Blues", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "SEU_PROJETO_1.jpg" },
-  { title: "RS", titleEN: "RS", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "SEU_PROJETO_3.jpg" },
-  { title: "GCE · 20 Anos", titleEN: "GCE · 20 Years", meta: "Motion Graphics", metaEN: "Motion Graphics", bg: "SEU_PROJETO_4.jpg" },
-  { title: "Editorial Recorte", titleEN: "Editorial Recorte", meta: "Design Editorial", metaEN: "Editorial Design", bg: "SEU_PROJETO_5.jpg" },
-  { title: "Identidade Cerâmica", titleEN: "Ceramic Identity", meta: "Branding", metaEN: "Branding", bg: "SEU_PROJETO_6.jpg" },
+  { title: "Memórias Póstumas de Brás Cubas", titleEN: "Memórias Póstumas de Brás Cubas", meta: "Design Editorial", metaEN: "Editorial Design", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/mpbc.png", url: "case.html" },
+  { title: "Pra Mim", titleEN: "Pra Mim", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/bb.png", url: "case.html" },
+  { title: "Paisagem de Inverno", titleEN: "Winter Landscape", meta: "Cartaz", metaEN: "Poster", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/pi.png", url: "case.html" },
+  { title: "Philadelphia Street Blues", titleEN: "Philadelphia Street Blues", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "SEU_PROJETO_1.jpg", url: "case.html" },
+  { title: "RS", titleEN: "RS", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "SEU_PROJETO_3.jpg", url: "case.html" },
+  { title: "GCE · 20 Anos", titleEN: "GCE · 20 Years", meta: "Motion Graphics", metaEN: "Motion Graphics", bg: "SEU_PROJETO_4.jpg", url: "case.html" },
+  { title: "Editorial Recorte", titleEN: "Editorial Recorte", meta: "Design Editorial", metaEN: "Editorial Design", bg: "SEU_PROJETO_5.jpg", url: "case.html" },
+  { title: "Identidade Cerâmica", titleEN: "Ceramic Identity", meta: "Branding", metaEN: "Branding", bg: "SEU_PROJETO_6.jpg", url: "case.html" },
 ];
 
 let currentLang = 'PT';
@@ -376,7 +398,7 @@ function buildGrid() {
     const meta  = currentLang === 'PT' ? p.meta  : p.metaEN;
     const item = document.createElement('div');
     item.className = 'project-item';
-    item.onclick = () => navigateTo('case.html');
+    item.onclick = () => navigateTo(p.url || 'case.html');
     item.innerHTML = `
       <div class="project-img">
         <div class="project-img-bg" style="background-image:url('${p.bg}')"></div>
@@ -384,6 +406,10 @@ function buildGrid() {
       <div class="project-cat">${meta}</div>
       <div class="project-name">${title}</div>
     `;
+    // Testar se imagem é real antes de marcar
+    const tester = new Image();
+    tester.onload = () => item.querySelector('.project-img').classList.add('has-image');
+    tester.src = p.bg;
     grid.appendChild(item);
   });
 }
@@ -474,10 +500,7 @@ function navigateTo(url) {
 }
 
 // Nav transparente ao scrollar
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('mainNav');
-  if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
-});
+
 
 // Fade in ao carregar
 document.body.style.opacity = '0';
@@ -487,6 +510,40 @@ window.addEventListener('load', () => {
 });
 
 buildGrid();
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  if (!nav) return;
+  const navBottom = nav.getBoundingClientRect().bottom;
+  const imgs = document.querySelectorAll('.project-img.has-image');
+  let overImg = false;
+  imgs.forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.top < navBottom && r.bottom > 0) overImg = true;
+  });
+  nav.classList.toggle('scrolled', overImg);
+});
+
+// Cursor personalizado
+const cursor = document.getElementById('custom-cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .more-item, .feed-scroll-item')) {
+    cursor.classList.add('hovering');
+  } else {
+    cursor.classList.remove('hovering');
+  }
+});
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .feed-scroll-item, .more-item')) {
+    cursor.classList.add('hovering');
+  } else {
+    cursor.classList.remove('hovering');
+  }
+});
 </script>
 </body>
 </html>

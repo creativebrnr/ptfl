@@ -43,41 +43,46 @@
 
   /* Botões — preto por padrão (página clara) */
   .btn-projetos {
-    height: 30px; padding: 0 14px; border-radius: 100px;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 100px;
     border: 1px solid rgba(0,0,0,0.18);
     background: rgba(0,0,0,0.07);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     color: #111;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 9px; font-weight: 400; letter-spacing: 0.08em;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
     cursor: pointer;
     transition: background 0.2s, color 0.3s, border-color 0.3s;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
-    white-space: nowrap; display: inline-flex; align-items: center;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
   }
   .btn-projetos:hover { background: rgba(0,0,0,0.12); }
-
-  /* Sobre hero escura — vira branco */
   nav.over-hero .btn-projetos {
     border-color: rgba(255,255,255,0.28);
     background: rgba(255,255,255,0.12);
     color: #fff;
     box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
   }
-  nav.over-hero .logo { background: #fff; }
+  nav.over-hero .logo { background: rgba(10,10,10,0.92); }
 
   /* ── MENU OVERLAY ── */
   .menu-overlay {
     position: fixed; inset: 0; z-index: 900;
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
-    background: rgba(0,0,0,0.22);
-    backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    background: rgba(0,0,0,0.20);
+    backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
     cursor: pointer;
   }
   .menu-overlay.open { opacity: 1; pointer-events: all; }
+
   .menu-inner-wrap {
     position: absolute; bottom: 0; left: 0; right: 0;
     padding: 56px; display: grid;
@@ -140,7 +145,7 @@
 
   /* ── CASE WRAPPER ── */
   .case-wrapper {
-    padding: 0 var(--pad);
+    padding: 0 10%;
     display: flex;
     flex-direction: column;
     gap: 56px;
@@ -178,14 +183,20 @@
     line-height: 1.55; color: var(--text);
   }
 
-  /* ── PAR DE VERTICAIS ── */
+  /* ── PAR DE VERTICAIS — mesma altura da hero ── */
+  /* Hero = 16:9 em 100%. Par de verticais = 2 colunas com gap de 22px.
+     Cada vertical tem a mesma ALTURA que a hero, então aspect-ratio = (largura_coluna / altura_hero)
+     Usamos padding-top hack: height da hero = width * 9/16.
+     Cada coluna = (100% - 22px) / 2. Altura = coluna * 9/16 * 2 (pois hero é largura total).
+     Simplificando: as verticais têm height igual à hero, então aspect-ratio = (50% - 11px) / (100% * 9/16).
+     Mais simples: deixar o .case-pair com altura fixa = hero height via CSS container. */
   .case-pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--gap);
   }
   .case-vertical {
-    aspect-ratio: 4/5;
+    aspect-ratio: 8/9;
     border-radius: var(--radius);
     overflow: hidden;
     background: #ddd;
@@ -208,7 +219,7 @@
 
   /* ── MAIS PROJETOS ── */
   .more-projects {
-    padding: 0 var(--pad) 120px;
+    padding: 0 10% 120px;
     margin-top: 0;
   }
   .more-label {
@@ -268,7 +279,7 @@
     }
   }
   .case-credits {
-    padding: 80px var(--pad) 120px;
+    padding: 80px 10% 120px;
   }
   .case-credits-line {
     width: 100%;
@@ -294,6 +305,7 @@
 
   @media (max-width: 640px) {
     nav { padding: 18px var(--pad); }
+    .case-wrapper, .case-credits, .more-projects { padding-left: var(--pad); padding-right: var(--pad); }
     .case-wrapper { gap: 32px; }
     .case-meta { grid-template-columns: 1fr; }
     .case-pair { grid-template-columns: 1fr; }
@@ -308,9 +320,9 @@
 
     .mobile-accordion {
       display: block; position: fixed; left: 0; right: 0; bottom: 0;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(24px) saturate(160%);
-      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      background: rgba(0,0,0,0.20);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
       border-top: 1px solid rgba(255,255,255,0.08);
       padding: 24px 28px 80px;
       transform: translateY(100%);
@@ -332,9 +344,28 @@
     .accordion-content .texto-title, .accordion-content .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); }
     .mobile-accordion .btn-preview { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); }
   }
+
+  /* ── CURSOR NEGATIVO ── */
+  * { cursor: none !important; }
+  #custom-cursor {
+    position: fixed;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: width 0.15s ease, height 0.15s ease;
+    top: 0; left: 0;
+  }
+  #custom-cursor.hovering {
+    width: 11px; height: 11px;
+  }
 </style>
 </head>
 <body>
+<div id="custom-cursor"></div>
 
 <nav id="mainNav">
   <div class="logo" onclick="navigateTo('portfolio-home-v6.html')"></div>
@@ -572,14 +603,22 @@ function navigateTo(url) {
   setTimeout(() => { window.location.href = url; }, 150);
 }
 
+// Marcar heroes com imagem real
+document.querySelectorAll('.case-hero img').forEach(img => {
+  const tester = new Image();
+  tester.onload = () => img.closest('.case-hero').classList.add('has-image');
+  tester.src = img.src;
+});
+
 window.addEventListener('scroll', () => {
   const nav = document.getElementById('mainNav');
-  const navBottom = nav.getBoundingClientRect().height;
-  const heroes = document.querySelectorAll('.case-hero');
+  if (!nav) return;
+  const navBottom = nav.getBoundingClientRect().bottom;
+  const heroes = document.querySelectorAll('.case-hero.has-image');
   let overHero = false;
   heroes.forEach(h => {
     const r = h.getBoundingClientRect();
-    if (r.top <= navBottom && r.bottom >= 0) overHero = true;
+    if (r.top < navBottom && r.bottom > 0) overHero = true;
   });
   nav.classList.toggle('over-hero', overHero);
 });
@@ -591,6 +630,27 @@ window.addEventListener('load', () => { document.body.style.opacity = '1'; });
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && menuOpen) closeMenu();
+});
+
+// Cursor personalizado
+const cursor = document.getElementById('custom-cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .more-item, .feed-scroll-item')) {
+    cursor.classList.add('hovering');
+  } else {
+    cursor.classList.remove('hovering');
+  }
+});
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .feed-scroll-item, .more-item')) {
+    cursor.classList.add('hovering');
+  } else {
+    cursor.classList.remove('hovering');
+  }
 });
 </script>
 </body>
