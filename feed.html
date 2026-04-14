@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feed</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --text: #111;
+    --text-secondary: rgba(0,0,0,0.45);
+    --bg: #f5f5f3;
+    --pad: 24px;
+    --gap: 14px;
+    --row-gap: 14px;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px var(--pad);
+    z-index: 400;
+    background: var(--bg);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  nav.scrolled {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .logo {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--text); flex-shrink: 0;
+    cursor: pointer; display: block; text-decoration: none;
+  }
+
+  .nav-right {
+    display: flex; align-items: center; gap: 8px; position: relative;
+  }
+
+  /* Pill — estado claro (idêntico ao dark-text do home) */
+  .btn-projetos {
+    height: 30px; padding: 0 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.07);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: #111;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9px; font-weight: 400; letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.3s, border-color 0.3s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
+    white-space: nowrap; display: inline-flex; align-items: center;
+  }
+  .btn-projetos:hover { background: rgba(0,0,0,0.12); }
+
+  /* Redondo — estado claro (idêntico ao dark-text do home) */
+  .btn-lang {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.07);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: #111;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 8px; font-weight: 500; letter-spacing: 0.08em;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.3s, border-color 0.3s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
+    position: relative;
+  }
+  .btn-lang:hover { background: rgba(0,0,0,0.12); }
+  .btn-lang svg { width: 14px; height: 14px; }
+
+  /* Ao scrollar sobre imagens — vira versão escura (idêntico ao default do home) */
+  nav.scrolled .btn-projetos {
+    border-color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  nav.scrolled .btn-lang {
+    border-color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  nav.scrolled .logo { background: #fff; }
+
+  .lang-dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: rgba(245,245,243,0.96);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(0,0,0,0.1); border-radius: 12px;
+    overflow: hidden; opacity: 0; pointer-events: none;
+    transition: opacity 0.15s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12); min-width: 64px; z-index: 500;
+  }
+  .lang-dropdown.open { opacity: 1; pointer-events: all; }
+  .lang-option {
+    padding: 9px 16px; font-size: 9px; font-weight: 400;
+    letter-spacing: 0.1em; color: rgba(0,0,0,0.6);
+    cursor: pointer; transition: background 0.1s; text-align: center;
+  }
+  .lang-option:hover { background: rgba(0,0,0,0.05); color: #111; }
+
+  /* MAIN */
+  main { padding-top: 72px; }
+
+  /* MASONRY — 4 colunas flex independentes */
+  .projects-grid {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 22px;
+    padding: var(--pad);
+  }
+
+  .feed-col {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .project-item { cursor: default; }
+
+  /* Imagem livre verticalmente */
+  .project-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #ccc;
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  /* Texto do feed — mesma entrelinha da home */
+  .project-cat {
+    font-size: 12px; font-weight: 400;
+    letter-spacing: 0; text-transform: none;
+    color: var(--text); margin-bottom: 6px;
+    line-height: 1.55;
+  }
+  /* Data como tag */
+  .project-name {
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-secondary); line-height: 1.3;
+  }
+
+  /* MOBILE — 1 coluna empilhada */
+  @media (max-width: 640px) {
+    nav { padding: 18px var(--pad); }
+    .projects-grid { gap: 0; padding: 14px; }
+    .feed-col { gap: 20px; }
+    #col1, #col2, #col3 { display: none; }
+  }
+
+  /* ─── MENU OVERLAY ─── */
+  .menu-overlay {
+    position: fixed; inset: 0;
+    z-index: 900;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+    background: rgba(0,0,0,0.22);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    cursor: pointer;
+  }
+  .menu-overlay.open { opacity: 1; pointer-events: all; }
+
+  .menu-inner-wrap {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 56px 56px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0 64px;
+    cursor: default;
+    z-index: 1;
+  }
+  .menu-close {
+    position: absolute; top: 20px; right: 24px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer; font-size: 22px; font-weight: 300; line-height: 1;
+    transition: color 0.15s; padding: 4px 8px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; z-index: 10000;
+  }
+  .menu-close:hover { color: rgba(255,255,255,0.9); }
+
+  .menu-nav-col {
+    display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 4px;
+  }
+  .menu-item {
+    font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none;
+    color: rgba(255,255,255,0.35); cursor: pointer; padding: 7px 0;
+    transition: color 0.15s ease; white-space: nowrap; user-select: none; line-height: 1.4;
+  }
+  .menu-item:hover, .menu-item.active-item { color: rgba(255,255,255,0.95); }
+
+  .menu-preview-col { position: relative; display: flex; align-items: flex-end; }
+  .preview-panel {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    opacity: 0; transition: none; pointer-events: none; padding-bottom: 4px;
+  }
+  .preview-panel.visible { opacity: 1; pointer-events: all; }
+
+  .preview-feed-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; width: 100%; }
+  .feed-thumb { aspect-ratio: 3/4; border-radius: 10px; background: #e8e8e8; border: none; }
+  .feed-thumb-snippet { margin-top: 8px; font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .preview-textos-list { display: flex; flex-direction: column; width: 100%; }
+  .texto-item { padding: 13px 0; border-top: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: opacity 0.15s; }
+  .texto-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .texto-item:hover { opacity: 0.5; }
+  .texto-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+  .texto-title { font-size: 12px; font-weight: 400; color: rgba(255,255,255,1); line-height: 1.55; }
+
+  .sobre-label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+  .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.4; color: rgba(255,255,255,1); max-width: 400px; }
+
+  .btn-preview {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
+    padding: 9px 18px; border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: rgba(255,255,255,0.9);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9px; font-weight: 400; letter-spacing: 0.08em;
+    cursor: pointer; transition: background 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+    white-space: nowrap; width: fit-content;
+  }
+  .btn-preview:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
+  .btn-preview svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  /* Mobile accordion */
+  .mobile-accordion { display: none; }
+
+  @media (max-width: 640px) {
+    .menu-inner-wrap { grid-template-columns: 1fr; padding: 64px 32px 0; top: 0; bottom: auto; }
+    .menu-preview-col { display: none; }
+    .menu-item { font-size: 18px; padding: 14px 0; }
+    .menu-close { font-size: 28px; top: 16px; right: 20px; }
+
+    .mobile-accordion {
+      display: block; position: fixed; left: 0; right: 0; bottom: 0;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 24px 28px 80px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 800;
+    }
+    .mobile-accordion.open { transform: translateY(0); }
+    .mobile-feed-scroll {
+      display: flex; gap: 20px; overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .mobile-feed-scroll::-webkit-scrollbar { display: none; }
+    .mobile-feed-scroll .feed-thumb { width: 100%; aspect-ratio: 3/4; border-radius: 8px; background: rgba(255,255,255,0.15); } .feed-scroll-item { flex-shrink: 0; width: 52vw; } .feed-scroll-snippet { margin-top: 6px; font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .accordion-action { position: fixed; bottom: 40px; right: 28px; z-index: 801; }
+    .accordion-content .texto-item { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .accordion-content .texto-label, .accordion-content .sobre-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 6px; font-weight: 400; }
+    .accordion-content .texto-title, .accordion-content .sobre-bio { font-size: 12px; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,1); }
+    .mobile-accordion .btn-preview { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); }
+  }
+
+  /* Menu aberto: logo esconde */
+  .menu-open .logo { opacity: 0; }
+  @media (max-width: 640px) {
+    nav { padding: 18px var(--pad); }
+    .projects-grid {
+      grid-template-columns: 1fr;
+      padding: 14px;
+      gap: 56px;
+    }
+    .project-img { aspect-ratio: 4/5; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="logo" onclick="navigateTo('portfolio-home-v6.html')" style="background:#111;cursor:pointer;"></div>
+  <div class="nav-right">
+    <button class="btn-projetos" onclick="navigateTo('projetos.html')">Projetos</button>
+    <button class="btn-projetos" onclick="openMenu()">Menu</button>
+  </div>
+</nav>
+
+<!-- MENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
+  <button class="menu-close" onclick="closeMenu()">&#215;</button>
+  <div class="menu-inner-wrap" onclick="event.stopPropagation()">
+    <div class="menu-nav-col">
+      <div class="menu-item active-item" data-target="feed"   onmouseenter="showPreview('feed')"   onclick="handleNavClick('feed')">Feed</div>
+      <div class="menu-item"             data-target="textos" onmouseenter="showPreview('textos')" onclick="handleNavClick('textos')">Textos</div>
+      <div class="menu-item"             data-target="sobre"  onmouseenter="showPreview('sobre')"  onclick="handleNavClick('sobre')">Sobre</div>
+    </div>
+    <div class="menu-preview-col">
+      <div class="preview-panel visible" id="preview-feed">
+        <div class="preview-feed-grid">
+          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">O silêncio entre dois elementos é tão importante quanto os elementos em si. Aprendi isso lendo Ruder...</div></div>
+          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve à leitura...</div></div>
+          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50 parecem feitas ontem...</div></div>
+          <div onclick="handleNav('feed')" style="cursor:pointer"><div class="feed-thumb"></div><div class="feed-thumb-snippet">Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha. Demorei duas horas...</div></div>
+        </div>
+        <button class="btn-preview" onclick="handleNav('feed')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          Ver feed
+        </button>
+      </div>
+      <div class="preview-panel" id="preview-textos">
+        <div class="preview-textos-list">
+          <div class="texto-item"><div class="texto-label">Ensaio · 2024</div><div class="texto-title">O designer e o cliente sem alma</div></div>
+          <div class="texto-item"><div class="texto-label">Processo · 2024</div><div class="texto-title">Como o concretismo brasileiro ainda fala</div></div>
+          <div class="texto-item"><div class="texto-label">Referência · 2023</div><div class="texto-title">Peter Saville e a recusa do óbvio</div></div>
+          <div class="texto-item"><div class="texto-label">Reflexão · 2023</div><div class="texto-title">Tipografia como argumento, não decoração</div></div>
+        </div>
+        <button class="btn-preview" onclick="handleNav('textos')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          Ver textos
+        </button>
+      </div>
+      <div class="preview-panel" id="preview-sobre">
+        <div class="sobre-label">Bruno Rodrigues — São Paulo</div>
+        <div class="sobre-bio">Designer gráfico com foco em identidade visual, design editorial e cultura. Acredito que forma é argumento — e que todo projeto tem algo a dizer antes de ter algo a mostrar.</div>
+        <button class="btn-preview" onclick="handleNav('sobre')">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+          Sobre
+        </button>
+      </div>
+    </div>
+    <div class="mobile-accordion" id="mobileAccordion"></div>
+  </div>
+</div>
+
+<main>
+  <div class="projects-grid" id="projectsGrid">
+    <div class="feed-col" id="col0"></div>
+    <div class="feed-col" id="col1"></div>
+    <div class="feed-col" id="col2"></div>
+    <div class="feed-col" id="col3"></div>
+  </div>
+</main>
+
+<script>
+const feedItems = [
+  {
+    body: 'O silêncio entre dois elementos é tão importante quanto os elementos em si. Aprendi isso lendo Ruder, confirmei projetando. O espaço em branco não é ausência — é decisão. Levei anos para parar de preenchê-lo por ansiedade.',
+    date: 'Março de 2025'
+  },
+  {
+    body: 'Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve à leitura, não ao ego do designer. Cada vez que exagero em algum detalhe gráfico, lembro disso e recuo. A disciplina suíça não é fria — é honesta. Existe uma generosidade enorme em abrir mão do ornamento para que o conteúdo respire. Acho que é por isso que a tipografia funcional ainda me comove depois de tantos anos.',
+    date: 'Março de 2025'
+  },
+  {
+    body: 'Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50 parecem feitas ontem.',
+    date: 'Fevereiro de 2025'
+  },
+  {
+    body: 'Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha. Demorei duas horas para aceitar que estava bom. A insegurança ainda chega antes da confiança — mas pelo menos chega junto, não mais antes. Aprendi que o processo de convencer a si mesmo faz parte do trabalho tanto quanto o processo de convencer o cliente. Os dois exigem argumento. Os dois exigem que você saiba o que quer dizer antes de dizer.',
+    date: 'Fevereiro de 2025'
+  },
+  {
+    body: 'Existe uma diferença muito clara entre o designer que resolve problema e o designer que propõe problema. Prefiro o segundo. Clientes que querem o primeiro normalmente já têm a resposta e só precisam de execução — o que é legítimo, mas não é o que me faz acordar animado.',
+    date: 'Janeiro de 2025'
+  },
+  {
+    body: 'Papel Munken Lynx 120g.',
+    date: 'Janeiro de 2025'
+  },
+  {
+    body: 'Cada vez mais convicto de que o portfolio não é arquivo. Portfolio é argumento. O que você escolhe mostrar diz mais sobre você do que o que você de fato fez. A curadoria é editorial antes de ser visual. Vi portfolios de designers muito bons que pareciam de designers medianos porque a ordem, o ritmo, a seleção eram descuidados. Vi o inverso também — designers em formação com portfolios que já propunham algo, já tinham voz. A forma do portfolio é tão expressiva quanto o conteúdo que ele carrega.',
+    date: 'Dezembro de 2024'
+  },
+  {
+    body: 'Reassisti Saul Bass: A Life in Film & Design. Toda vez aprendo algo diferente. Dessa vez prestei atenção na forma como ele falava sobre restrição como virtude — não como limitação. A abertura de Vertigo com aqueles espirais não é resultado de muitos recursos. É resultado de uma ideia muito clara executada com precisão absoluta. Menos opções forçam mais decisão. Mais decisão gera mais identidade. Fico pensando nisso quando vejo trabalhos contemporâneos que usam tudo que a tecnologia permite — e justamente por isso não dizem nada de específico.',
+    date: 'Novembro de 2024'
+  },
+];
+
+let menuOpen = false;
+
+function buildGrid() {
+  const isMobile = window.innerWidth <= 640;
+  const numCols = isMobile ? 1 : 4;
+
+  const cols = [
+    document.getElementById('col0'),
+    document.getElementById('col1'),
+    document.getElementById('col2'),
+    document.getElementById('col3'),
+  ];
+  cols.forEach(c => c.innerHTML = '');
+
+  feedItems.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.innerHTML = `
+      <div class="project-img"></div>
+      <div class="project-cat">${item.body}</div>
+      <div class="project-name">${item.date}</div>
+    `;
+    cols[i % numCols].appendChild(el);
+  });
+}
+
+window.addEventListener('resize', buildGrid);
+
+function openMenu() {
+  menuOpen = true;
+  document.getElementById('menuOverlay').classList.add('open');
+  document.body.classList.add('menu-open');
+  showPreview('feed');
+}
+
+function closeMenu() {
+  menuOpen = false;
+  document.getElementById('menuOverlay').classList.remove('open');
+  document.body.classList.remove('menu-open');
+  const acc = document.getElementById('mobileAccordion');
+  if (acc) { acc.classList.remove('open'); acc.innerHTML = ''; acc.dataset.current = ''; }
+}
+
+function showPreview(id) {
+  document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-item'));
+  document.querySelector('[data-target="' + id + '"]')?.classList.add('active-item');
+  document.querySelectorAll('.preview-panel').forEach(p => p.classList.remove('visible'));
+  document.getElementById('preview-' + id)?.classList.add('visible');
+}
+
+function handleNavClick(id) {
+  if (window.innerWidth <= 640) {
+    const acc = document.getElementById('mobileAccordion');
+    const contents = {
+      feed: '<div class="mobile-feed-scroll"><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb" style="background:#e8e8e8"></div><div class="feed-scroll-snippet">O silêncio entre dois elementos é tão importante quanto os elementos em si...</div></div><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb" style="background:#e8e8e8"></div><div class="feed-scroll-snippet">Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve...</div></div><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb" style="background:#e8e8e8"></div><div class="feed-scroll-snippet">Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50...</div></div><div class="feed-scroll-item" onclick="navigateTo(\'feed.html\')" style="cursor:pointer"><div class="feed-thumb" style="background:#e8e8e8"></div><div class="feed-scroll-snippet">Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha...</div></div></div><div class="accordion-action"><button class="btn-preview" onclick="navigateTo(\'feed.html\')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver feed</button></div>',
+      textos: '<div class="accordion-content"><div class="texto-item"><div class="texto-label">Ensaio · 2024</div><div class="texto-title">O designer e o cliente sem alma</div></div><div class="texto-item"><div class="texto-label">Processo · 2024</div><div class="texto-title">Como o concretismo brasileiro ainda fala</div></div><div class="texto-item"><div class="texto-label">Referência · 2023</div><div class="texto-title">Peter Saville e a recusa do óbvio</div></div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav(\'textos\')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Ver textos</button></div>',
+      sobre: '<div class="accordion-content"><div class="sobre-label">Bruno Rodrigues — São Paulo</div><div class="sobre-bio">Designer gráfico com foco em identidade visual, design editorial e cultura.</div></div><div class="accordion-action"><button class="btn-preview" onclick="handleNav(\'sobre\')"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>Sobre</button></div>'
+    };
+    const isOpen = acc.classList.contains('open') && acc.dataset.current === id;
+    acc.classList.remove('open'); acc.innerHTML = ''; acc.dataset.current = '';
+    if (!isOpen) {
+      acc.innerHTML = contents[id] || '';
+      const lastItem = document.querySelector('.menu-nav-col .menu-item:last-child');
+      if (lastItem) acc.style.top = (lastItem.getBoundingClientRect().bottom + 24) + 'px';
+      requestAnimationFrame(() => acc.classList.add('open'));
+      acc.dataset.current = id;
+    }
+    showPreview(id);
+  } else {
+    handleNav(id);
+  }
+}
+
+function handleNav(id) {
+  closeMenu();
+  if (id === 'textos') navigateTo('textos.html');
+  else if (id === 'sobre') navigateTo('sobre.html');
+  // 'feed' não faz nada — já estamos no feed
+}
+
+function navigateTo(url) {
+  document.body.style.transition = 'opacity 0.15s ease';
+  document.body.style.opacity = '0';
+  setTimeout(() => { window.location.href = url; }, 150);
+}
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Fade-in ao carregar
+document.body.style.opacity = '0';
+document.body.style.transition = 'opacity 0.3s ease';
+setTimeout(() => { document.body.style.opacity = '1'; }, 50);
+window.addEventListener('load', () => { document.body.style.opacity = '1'; });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && menuOpen) closeMenu();
+});
+
+buildGrid();
+</script>
+</body>
+</html>
