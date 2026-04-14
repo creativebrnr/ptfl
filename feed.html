@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projetos</title>
+<title>Feed</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -123,42 +123,56 @@
   /* MAIN */
   main { padding-top: 72px; }
 
-  /* GRID — 3 colunas desktop */
+  /* MASONRY — 4 colunas flex independentes */
   .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 52px 22px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 22px;
     padding: var(--pad);
   }
 
-  .project-item { cursor: pointer; }
+  .feed-col {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    flex: 1;
+    min-width: 0;
+  }
 
-  /* Desktop: proporção 5:6 — menos vertical, cabe nome na tela */
+  .project-item { cursor: default; }
+
+  /* Imagem livre verticalmente */
   .project-img {
     width: 100%;
-    aspect-ratio: 5/6;
+    aspect-ratio: 3/4;
     border-radius: var(--radius);
     overflow: hidden;
-    background: #ddd;
+    background: #ccc;
     position: relative;
     margin-bottom: 10px;
   }
-  .project-img-bg {
-    position: absolute; inset: 0;
-    background-size: cover; background-position: center;
-  }
 
-  /* Info abaixo */
+  /* Texto do feed — mesma entrelinha da home */
   .project-cat {
+    font-size: 12px; font-weight: 400;
+    letter-spacing: 0; text-transform: none;
+    color: var(--text); margin-bottom: 6px;
+    line-height: 1.55;
+  }
+  /* Data como tag */
+  .project-name {
     font-size: 9px; font-weight: 400;
     letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--text-secondary); margin-bottom: 4px;
+    color: var(--text-secondary); line-height: 1.3;
   }
-  .project-name {
-    font-size: 12px; font-weight: 400;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text); line-height: 1.3;
+
+  /* MOBILE — 1 coluna empilhada */
+  @media (max-width: 640px) {
+    nav { padding: 18px var(--pad); }
+    .projects-grid { gap: 0; padding: 14px; }
+    .feed-col { gap: 20px; }
+    #col1, #col2, #col3 { display: none; }
   }
 
   /* ─── MENU OVERLAY ─── */
@@ -347,61 +361,78 @@
 </div>
 
 <main>
-  <div class="projects-grid" id="projectsGrid"></div>
+  <div class="projects-grid" id="projectsGrid">
+    <div class="feed-col" id="col0"></div>
+    <div class="feed-col" id="col1"></div>
+    <div class="feed-col" id="col2"></div>
+    <div class="feed-col" id="col3"></div>
+  </div>
 </main>
 
 <script>
-const projects = [
-  { title: "Memórias Póstumas de Brás Cubas", titleEN: "Memórias Póstumas de Brás Cubas", meta: "Design Editorial", metaEN: "Editorial Design", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/mpbc.png" },
-  { title: "Pra Mim", titleEN: "Pra Mim", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/bb.png" },
-  { title: "Paisagem de Inverno", titleEN: "Winter Landscape", meta: "Cartaz", metaEN: "Poster", bg: "/Users/brunorodrigues/Desktop/Site Bruno/images/pi.png" },
-  { title: "Philadelphia Street Blues", titleEN: "Philadelphia Street Blues", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "SEU_PROJETO_1.jpg" },
-  { title: "RS", titleEN: "RS", meta: "Identidade Visual", metaEN: "Visual Identity", bg: "SEU_PROJETO_3.jpg" },
-  { title: "GCE · 20 Anos", titleEN: "GCE · 20 Years", meta: "Motion Graphics", metaEN: "Motion Graphics", bg: "SEU_PROJETO_4.jpg" },
-  { title: "Editorial Recorte", titleEN: "Editorial Recorte", meta: "Design Editorial", metaEN: "Editorial Design", bg: "SEU_PROJETO_5.jpg" },
-  { title: "Identidade Cerâmica", titleEN: "Ceramic Identity", meta: "Branding", metaEN: "Branding", bg: "SEU_PROJETO_6.jpg" },
+const feedItems = [
+  {
+    body: 'O silêncio entre dois elementos é tão importante quanto os elementos em si. Aprendi isso lendo Ruder, confirmei projetando. O espaço em branco não é ausência — é decisão. Levei anos para parar de preenchê-lo por ansiedade.',
+    date: 'Março de 2025'
+  },
+  {
+    body: 'Typographie é de 1967, mas lê como manual de hoje. Emil Ruder sabia que a forma serve à leitura, não ao ego do designer. Cada vez que exagero em algum detalhe gráfico, lembro disso e recuo. A disciplina suíça não é fria — é honesta. Existe uma generosidade enorme em abrir mão do ornamento para que o conteúdo respire. Acho que é por isso que a tipografia funcional ainda me comove depois de tantos anos.',
+    date: 'Março de 2025'
+  },
+  {
+    body: 'Fui ver a exposição do Geraldo de Barros no MASP. Aquelas fotogramas dos anos 50 parecem feitas ontem.',
+    date: 'Fevereiro de 2025'
+  },
+  {
+    body: 'Experimentei compor um cartaz inteiro sem nenhuma imagem. Só tipografia e mancha. Demorei duas horas para aceitar que estava bom. A insegurança ainda chega antes da confiança — mas pelo menos chega junto, não mais antes. Aprendi que o processo de convencer a si mesmo faz parte do trabalho tanto quanto o processo de convencer o cliente. Os dois exigem argumento. Os dois exigem que você saiba o que quer dizer antes de dizer.',
+    date: 'Fevereiro de 2025'
+  },
+  {
+    body: 'Existe uma diferença muito clara entre o designer que resolve problema e o designer que propõe problema. Prefiro o segundo. Clientes que querem o primeiro normalmente já têm a resposta e só precisam de execução — o que é legítimo, mas não é o que me faz acordar animado.',
+    date: 'Janeiro de 2025'
+  },
+  {
+    body: 'Papel Munken Lynx 120g.',
+    date: 'Janeiro de 2025'
+  },
+  {
+    body: 'Cada vez mais convicto de que o portfolio não é arquivo. Portfolio é argumento. O que você escolhe mostrar diz mais sobre você do que o que você de fato fez. A curadoria é editorial antes de ser visual. Vi portfolios de designers muito bons que pareciam de designers medianos porque a ordem, o ritmo, a seleção eram descuidados. Vi o inverso também — designers em formação com portfolios que já propunham algo, já tinham voz. A forma do portfolio é tão expressiva quanto o conteúdo que ele carrega.',
+    date: 'Dezembro de 2024'
+  },
+  {
+    body: 'Reassisti Saul Bass: A Life in Film & Design. Toda vez aprendo algo diferente. Dessa vez prestei atenção na forma como ele falava sobre restrição como virtude — não como limitação. A abertura de Vertigo com aqueles espirais não é resultado de muitos recursos. É resultado de uma ideia muito clara executada com precisão absoluta. Menos opções forçam mais decisão. Mais decisão gera mais identidade. Fico pensando nisso quando vejo trabalhos contemporâneos que usam tudo que a tecnologia permite — e justamente por isso não dizem nada de específico.',
+    date: 'Novembro de 2024'
+  },
 ];
 
-let currentLang = 'PT';
-let langOpen = false;
 let menuOpen = false;
 
-// ─── GRID ───
 function buildGrid() {
-  const grid = document.getElementById('projectsGrid');
-  grid.innerHTML = '';
-  projects.forEach(p => {
-    const title = currentLang === 'PT' ? p.title : p.titleEN;
-    const meta  = currentLang === 'PT' ? p.meta  : p.metaEN;
-    const item = document.createElement('div');
-    item.className = 'project-item';
-    item.innerHTML = `
-      <div class="project-img">
-        <div class="project-img-bg" style="background-image:url('${p.bg}')"></div>
-      </div>
-      <div class="project-cat">${meta}</div>
-      <div class="project-name">${title}</div>
+  const isMobile = window.innerWidth <= 640;
+  const numCols = isMobile ? 1 : 4;
+
+  const cols = [
+    document.getElementById('col0'),
+    document.getElementById('col1'),
+    document.getElementById('col2'),
+    document.getElementById('col3'),
+  ];
+  cols.forEach(c => c.innerHTML = '');
+
+  feedItems.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'project-item';
+    el.innerHTML = `
+      <div class="project-img"></div>
+      <div class="project-cat">${item.body}</div>
+      <div class="project-name">${item.date}</div>
     `;
-    grid.appendChild(item);
+    cols[i % numCols].appendChild(el);
   });
 }
 
-// ─── LANG ───
-function toggleLang(e) {
-  e.stopPropagation();
-  langOpen = !langOpen;
-  document.getElementById('langDropdown').classList.toggle('open', langOpen);
-}
+window.addEventListener('resize', buildGrid);
 
-function setLang(lang) {
-  currentLang = lang;
-  document.getElementById('langLabel').textContent = lang;
-  langOpen = false;
-  document.getElementById('langDropdown').classList.remove('open');
-  buildGrid();
-}
-
-// ─── MENU ───
 function openMenu() {
   menuOpen = true;
   document.getElementById('menuOverlay').classList.add('open');
@@ -449,39 +480,30 @@ function handleNavClick(id) {
 
 function handleNav(id) {
   closeMenu();
-  if (id === 'feed') navigateTo('feed.html');
+  if (id === 'textos') navigateTo('textos.html');
+  else if (id === 'sobre') navigateTo('sobre.html');
+  // 'feed' não faz nada — já estamos no feed
 }
 
-document.addEventListener('click', e => {
-  if (!e.target.closest('#btnLang') && !e.target.closest('#langDropdown')) {
-    langOpen = false;
-    const dd = document.getElementById('langDropdown');
-    if (dd) dd.classList.remove('open');
-  }
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && menuOpen) closeMenu();
-});
-
-// Transição suave de página
 function navigateTo(url) {
   document.body.style.transition = 'opacity 0.15s ease';
   document.body.style.opacity = '0';
   setTimeout(() => { window.location.href = url; }, 150);
 }
 
-// Nav transparente ao scrollar
 window.addEventListener('scroll', () => {
   const nav = document.getElementById('mainNav');
   if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
 });
 
-// Fade in ao carregar
+// Fade-in ao carregar
 document.body.style.opacity = '0';
-window.addEventListener('load', () => {
-  document.body.style.transition = 'opacity 0.3s ease';
-  document.body.style.opacity = '1';
+document.body.style.transition = 'opacity 0.3s ease';
+setTimeout(() => { document.body.style.opacity = '1'; }, 50);
+window.addEventListener('load', () => { document.body.style.opacity = '1'; });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && menuOpen) closeMenu();
 });
 
 buildGrid();
