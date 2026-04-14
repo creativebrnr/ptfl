@@ -612,31 +612,11 @@
     .mobile-accordion .btn-preview svg { stroke: rgba(255,255,255,0.9); }
   }
 
-  /* ── CURSOR NEGATIVO ── */
-  * { cursor: none !important; }
-  @media (max-width: 640px) {
-    * { cursor: auto !important; }
-    #custom-cursor { display: none !important; }
-  }
-  #custom-cursor {
-    position: fixed;
-    width: 11px; height: 11px;
-    border-radius: 50%;
-    background: #fff;
-    mix-blend-mode: difference;
-    pointer-events: none;
-    z-index: 99999;
-    transform: translate(-50%, -50%);
-    transition: width 0.15s ease, height 0.15s ease;
-    top: 0; left: 0;
-  }
-  #custom-cursor.hovering {
-    width: 11px; height: 11px;
-  }
+
+
 </style>
 </head>
 <body>
-<div id="custom-cursor"></div>
 
 <div class="page-transition" id="pageTransition"></div>
 
@@ -985,12 +965,7 @@ document.addEventListener('keydown', (e) => {
 buildSlides();
 goToSlide(0);
 
-// Cursor personalizado
-const cursor = document.getElementById('custom-cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-});
+
 document.addEventListener('mouseover', e => {
   if (e.target.closest('button, a, [onclick], .project-item, .menu-item, .more-item, .feed-scroll-item')) {
     cursor.classList.add('hovering');
