@@ -306,7 +306,7 @@
 <body>
 
 <nav id="mainNav">
-  <div class="logo" onclick="navigateTo('portfolio-home-v6.html')" style="background:#111;cursor:pointer;"></div>
+  <div class="logo" onclick="navigateTo('index.html')" style="background:#111;cursor:pointer;"></div>
   <div class="nav-right">
     <button class="btn-projetos" onclick="navigateTo('projetos.html')">Projetos</button>
     <button class="btn-projetos" onclick="openMenu()">Menu</button>
