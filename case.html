@@ -298,8 +298,8 @@
   }
 
   @media (max-width: 640px) {
-    nav { padding: 18px var(--pad); }
-    .case-wrapper, .case-credits, .more-projects { padding-left: var(--pad); padding-right: var(--pad); }
+    nav { padding: 18px 14px; }
+    .case-wrapper, .case-credits, .more-projects { padding-left: 14px; padding-right: 14px; }
     .case-wrapper { gap: 32px; }
     .case-meta { grid-template-columns: 1fr; }
     .case-pair { grid-template-columns: 1fr; }
@@ -422,7 +422,7 @@
   @media (max-width: 640px) {
     .site-footer {
       grid-template-columns: 1fr;
-      padding: 60px 14px 0;
+      padding: 60px var(--pad) 0;
       gap: 32px;
     }
     .footer-contacts { grid-column: 1; }
