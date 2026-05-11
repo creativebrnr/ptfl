@@ -66,9 +66,9 @@
 
   /* estados de texto no header */
   .t-back { display: none; align-items: center; gap: 8px; cursor: pointer; }
-  body:is(.case-open, .gallery-open, .feed-grid-open, .about-open) .t-projetos,
-  body:is(.case-open, .gallery-open, .feed-grid-open, .about-open) .t-verall { display: none; }
-  body:is(.case-open, .gallery-open, .feed-grid-open, .about-open) .t-back { display: inline-flex; }
+  body:is(.case-open, .gallery-open, .feed-grid-open, .about-open, .form-open) .t-projetos,
+  body:is(.case-open, .gallery-open, .feed-grid-open, .about-open, .form-open) .t-verall { display: none; }
+  body:is(.case-open, .gallery-open, .feed-grid-open, .about-open, .form-open) .t-back { display: inline-flex; }
 
   body.feed-grid-open .t-feed,
   body.feed-grid-open .t-feed-verall { display: none; }
@@ -90,7 +90,9 @@
     height: 11px;
     border-radius: 50%;
     background: var(--ink);
+    vertical-align: middle;               /* alinha ao centro visual do texto ao lado */
   }
+  .t-projetos { line-height: 1; }         /* sem leading extra ao redor do círculo */
 
   /* ───────── conteúdo ───────── */
   main {
@@ -175,9 +177,9 @@
   }
   .work-meta h2 em { font-style: italic; }
   .work-meta p {
-    font-size: var(--label);
+    font-size: 12px;                      /* +1pt do --label */
     letter-spacing: 0.04em;
-    line-height: 1.5;
+    line-height: 1.4;                     /* −1pt de entrelinha */
     color: var(--ink);
     margin-top: 14px;
   }
@@ -213,7 +215,7 @@
   .feed {
     display: flex;
     flex-direction: column;
-    gap: 56px;
+    gap: 28px;                            /* posts mais próximos */
     padding-bottom: 32px;
   }
   .post-figure {
@@ -233,7 +235,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: var(--label);
+    font-size: 12px;                      /* +1pt do --label (Bruno Rodrigues + data) */
     letter-spacing: 0.04em;
     color: var(--ink-soft);
     margin-bottom: 8px;
@@ -241,15 +243,15 @@
   }
   .post-head strong { color: var(--ink); font-weight: 500; }
   .post-body {
-    font-size: var(--label);
+    font-size: 12px;                      /* +1pt do --label */
     letter-spacing: 0.04em;
-    line-height: 1.5;
+    line-height: 1.4;                     /* −1pt de entrelinha */
     padding: 0 2px;
   }
 
   .scroll-top {
     align-self: center;
-    margin-top: -28px;
+    margin-top: 8px;                      /* respiro após a última publicação */
     appearance: none;
     background: none;
     border: none;
@@ -396,9 +398,9 @@
     display: block;
   }
   .about-bio p {
-    font-size: var(--label);
+    font-size: 12px;                      /* +1pt */
     letter-spacing: 0.04em;
-    line-height: 1.5;
+    line-height: 1.4;                     /* −1pt */
     color: var(--ink);
   }
   .about-bio p + p { margin-top: 12px; }
@@ -411,6 +413,109 @@
     color: var(--ink);
   }
   .about-bio.giant p + p { margin-top: 0; }
+
+  /* ───────── form modal (acesso à tabela de valores) ───────── */
+  .form-modal {
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    transform: translateY(101%);          /* vem de baixo, sem cobrir o feed quando fechado */
+    transition: transform 0.35s cubic-bezier(.2,.8,.2,1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+    padding: var(--pad) var(--pad) calc(var(--pad) + var(--bar-h));
+    z-index: 5;
+    display: flex;
+    align-items: safe center;             /* centro vertical, mas não corta se passar */
+    justify-content: center;
+  }
+  .form-modal::-webkit-scrollbar { width: 6px; }
+  .form-modal::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+  body.form-open .form-modal { transform: translateY(0); }
+
+  .form-modal-inner {
+    max-width: 520px;
+    width: 100%;
+    padding: 0 12px;
+    margin: 0;
+  }
+  .form-modal-intro {
+    font-size: 12px;                      /* +1pt */
+    letter-spacing: 0.04em;
+    line-height: 1.4;                     /* −1pt */
+    color: var(--ink);
+    margin-bottom: 40px;
+  }
+  .form-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .form-label {
+    font-size: var(--label);
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .form-help {
+    display: block;
+    font-size: var(--label);
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .form-modal-form input,
+  .form-modal-form textarea {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--type);
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+    padding: 8px 0;
+    color: var(--ink);
+    resize: vertical;
+    width: 100%;
+  }
+  .form-modal-form input:focus,
+  .form-modal-form textarea:focus {
+    outline: none;
+    border-bottom-color: var(--ink);
+  }
+  .form-modal-form textarea {
+    min-height: 60px;
+  }
+  .form-submit {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-family: var(--type);
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    align-self: flex-start;
+    margin-top: 12px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .form-submit svg {
+    width: 14px;
+    height: 10px;
+    shape-rendering: geometricPrecision;
+  }
 
   .about-credits {
     display: flex;
@@ -425,6 +530,7 @@
   .about-section-title {
     font-size: var(--label);
     letter-spacing: 0.04em;
+    line-height: 1.5;                     /* casa com o p da about-bio à esquerda */
     color: var(--ink);
     font-weight: 700;                     /* negrito */
   }
@@ -457,7 +563,7 @@
     break-inside: avoid;
     display: block;
     width: 100%;
-    margin-bottom: 56px;
+    margin-bottom: 28px;                  /* alinhado ao novo ritmo do feed */
   }
 
   /* ───────── marquee ───────── */
@@ -514,19 +620,42 @@
   @media (max-width: 820px) {
     :root { --media-h: calc((100vw - var(--pad) * 2) * 10 / 16); }
 
+    /* header mobile mais alto: rótulos descem um pouco */
+    .shell { grid-template-rows: 40px 1fr; }
+
     main { grid-template-columns: 1fr; }
     main[data-view="projetos"] .col.right { display: none; }
     main[data-view="feed"]     .col.left  { display: none; }
-    .col.right { border-left: none; }
+    .col.right {
+      border-left: none;
+      padding: var(--pad) var(--pad) calc(var(--pad) + var(--bar-h));
+    }
 
-    .bar.top { display: flex; justify-content: center; align-items: center; }
-    .bar.top .cell { display: none; }
+    /* HEADER MOBILE: logo à esquerda, toggle "Projetos e Feed" à direita */
+    .bar.top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 var(--pad);
+    }
+    .bar.top .cell {
+      display: none;
+      border: none;
+      padding: 0;
+      height: auto;
+      font-size: 12px;                    /* +1pt para os rótulos do header mobile */
+    }
+    .bar.top .cell.left {
+      display: flex;
+      align-items: center;
+    }
+    .bar.top .cell.left .t-verall { display: none; }
 
     .mobile-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 24px;
-      font-size: var(--label);
+      gap: 6px;
+      font-size: 12px;                    /* +1pt: "Projetos e Feed" */
       letter-spacing: 0.04em;
       line-height: 1;
     }
@@ -542,17 +671,34 @@
       transition: color 0.2s ease;
     }
     .mobile-toggle button.is-active { color: var(--ink); }
-
-    body:is(.case-open, .gallery-open, .about-open) .bar.top {
-      justify-content: flex-start;
-      padding: 0 var(--pad);
+    .mobile-toggle .toggle-sep {
+      color: var(--ink-soft);
+      font-size: 12px;
+      letter-spacing: 0.04em;
     }
-    body:is(.case-open, .gallery-open, .about-open) .mobile-toggle { display: none; }
-    body:is(.case-open, .gallery-open, .about-open) .bar.top .cell.left { display: flex; }
 
+    /* em estado de overlay, esconde logo e toggle; back aparece no left cell */
+    body:is(.case-open, .gallery-open, .about-open, .form-open) .bar.top .cell.left .t-projetos { display: none; }
+    body:is(.case-open, .gallery-open, .about-open, .form-open) .mobile-toggle { display: none; }
+
+    /* MARQUEE FIXA no rodapé do viewport em todas as páginas mobile */
+    .marquee-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      z-index: 7;
+    }
+    /* feed-grid é desktop-only — neutraliza a regra de extensão lateral */
+    body.feed-grid-open .marquee-bar { right: 0; }
+    /* .col.left mantém o grid 1fr/var(--bar-h): a linha 2 fica vazia e a marquee fixa cobre exatamente o mesmo espaço */
+
+    /* HOME MOBILE: thumb + label mais próximos */
     .col-scroll .work-meta { grid-template-columns: 1fr; }
     .col-scroll .work-meta > div + div { display: none; }
-    .col-scroll .work { margin-bottom: 40px; }
+    .col-scroll .work { margin-bottom: 24px; }      /* projetos mais próximos */
+    .col-scroll .work-figure { margin-bottom: 8px; } /* nome mais perto da thumb */
 
     /* feed-grid é desktop-only */
     .feed-grid { display: none; }
@@ -567,7 +713,19 @@
       line-height: 0.9625;
     }
 
-    /* colapsa o grid 1fr/1fr do about em mobile */
+    /* CASE MOBILE: pares empilhados; descrição vai de borda a borda */
+    .case .case-figure.pair { grid-template-columns: 1fr; }
+    .case .case-block .work-meta {
+      padding: 0;                         /* alinha com as margens do case */
+      row-gap: 0;                         /* o margin-top do <p> define o espaço */
+    }
+    /* dissolve o wrapper do h2+p (não nos créditos do projeto) */
+    .case .case-block:not(.credits-block) .work-meta > div:nth-child(2) { display: contents; }
+    .case .case-block:not(.credits-block) .work-meta p { grid-column: 1 / -1; }
+  }
+
+  /* colapsa o grid 1fr/1fr do about só em telas muito estreitas */
+  @media (max-width: 480px) {
     .about .work-meta {
       grid-template-columns: 1fr;
       gap: 32px;
@@ -601,6 +759,7 @@
 
       <div class="mobile-toggle" role="tablist" aria-label="Alternar visualização">
         <button type="button" class="is-active" data-view="projetos" role="tab" aria-selected="true">Projetos</button>
+        <span class="toggle-sep" aria-hidden="true">e</span>
         <button type="button" data-view="feed" role="tab" aria-selected="false">Feed</button>
       </div>
     </header>
@@ -780,7 +939,7 @@
             <div class="work-meta">
               <div>
                 <h2>
-                  <a href="#" class="cta-link">Solicite acesso a<br>tabela de investimentos<svg class="cta-arrow" viewBox="0 0 14 10" aria-hidden="true"><path d="M1 5 H13 M9 1 L13 5 L9 9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"/></svg></a>
+                  <a href="#" class="cta-link" data-action="open-form">Solicite acesso a<br>tabela de valores<svg class="cta-arrow" viewBox="0 0 14 10" aria-hidden="true"><path d="M1 5 H13 M9 1 L13 5 L9 9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square" stroke-linejoin="miter"/></svg></a>
                 </h2>
               </div>
               <div>
@@ -799,7 +958,7 @@
             <div class="about-pair">
               <div class="about-pair-text">
                 <div class="about-bio giant">
-                  <p>Bruno Rodrigues é um designer brasileiro baseado em São Paulo.</p>
+                  <p>Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</p>
                 </div>
               </div>
               <div class="about-pair-image">
@@ -875,21 +1034,61 @@
 
         </div>
 
+        <!-- FORM MODAL (acesso à tabela de valores) -->
+        <div class="form-modal" aria-hidden="true">
+          <div class="form-modal-inner">
+            <p class="form-modal-intro">
+              Os valores ficam em uma área reservada. O acesso é concedido após
+              uma breve avaliação do fit entre seu projeto e o tipo de trabalho
+              que fazemos. Resposta em até 2 horas.
+            </p>
+            <form class="form-modal-form" data-form="pricing-request">
+              <label class="form-field">
+                <span class="form-label">Nome</span>
+                <input type="text" name="name" autocomplete="name" required>
+              </label>
+              <label class="form-field">
+                <span class="form-label">E-mail</span>
+                <input type="email" name="email" autocomplete="email" required>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Breve descrição do projeto</span>
+                <textarea name="description" rows="3" required></textarea>
+              </label>
+              <label class="form-field">
+                <span class="form-label">
+                  Um link onde eu possa conhecer um pouco mais sobre você ou seu projeto
+                  <span class="form-help">Instagram, LinkedIn, site ou portfólio</span>
+                </span>
+                <input type="url" name="link" inputmode="url" required>
+              </label>
+              <button type="submit" class="form-submit">
+                Enviar
+                <svg viewBox="0 0 14 10" aria-hidden="true">
+                  <path d="M1 5 H13 M9 1 L13 5 L9 9"
+                        fill="none" stroke="currentColor" stroke-width="1"
+                        stroke-linecap="square" stroke-linejoin="miter"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
         <!-- MARQUEE -->
         <div class="marquee-bar" aria-label="Info e contatos">
           <div class="marquee">
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
-            <a href="#" class="marquee-text" data-action="open-about">Info+contatos — Bruno Rodrigues é um designer gráfico brasileiro baseado em São Paulo</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
+            <a href="#" class="marquee-text" data-action="open-about">Informações e contatos — clique aqui para saber mais</a>
           </div>
         </div>
 
@@ -1091,6 +1290,7 @@
     const galleryEl  = document.querySelector('.gallery');
     const aboutEl    = document.querySelector('.about');
     const feedGridEl = document.querySelector('.feed-grid');
+    const formEl     = document.querySelector('.form-modal');
     const feedColEl  = document.querySelector('.col.right');
     const body = document.body;
 
@@ -1098,33 +1298,49 @@
 
     function openCase() {
       body.classList.add('case-open');
-      body.classList.remove('gallery-open', 'feed-grid-open', 'about-open');
+      body.classList.remove('gallery-open', 'feed-grid-open', 'about-open', 'form-open');
       setHidden(caseEl, false);
-      setHidden(galleryEl, true); setHidden(aboutEl, true); setHidden(feedGridEl, true);
+      setHidden(galleryEl, true); setHidden(aboutEl, true);
+      setHidden(feedGridEl, true); setHidden(formEl, true);
       caseEl.scrollTop = 0;
     }
     function openGallery() {
       body.classList.add('gallery-open');
-      body.classList.remove('case-open', 'feed-grid-open', 'about-open');
+      body.classList.remove('case-open', 'feed-grid-open', 'about-open', 'form-open');
       setHidden(galleryEl, false);
-      setHidden(caseEl, true); setHidden(aboutEl, true); setHidden(feedGridEl, true);
+      setHidden(caseEl, true); setHidden(aboutEl, true);
+      setHidden(feedGridEl, true); setHidden(formEl, true);
       galleryEl.scrollTop = 0;
     }
     function openAbout() {
       body.classList.add('about-open');
-      body.classList.remove('case-open', 'gallery-open', 'feed-grid-open');
+      body.classList.remove('case-open', 'gallery-open', 'feed-grid-open', 'form-open');
       setHidden(aboutEl, false);
-      setHidden(caseEl, true); setHidden(galleryEl, true); setHidden(feedGridEl, true);
+      setHidden(caseEl, true); setHidden(galleryEl, true);
+      setHidden(feedGridEl, true); setHidden(formEl, true);
       aboutEl.scrollTop = 0;
     }
     function openFeedGrid() {
       body.classList.add('feed-grid-open');
-      body.classList.remove('case-open', 'gallery-open', 'about-open');
+      body.classList.remove('case-open', 'gallery-open', 'about-open', 'form-open');
       setHidden(feedGridEl, false);
-      setHidden(caseEl, true); setHidden(galleryEl, true); setHidden(aboutEl, true);
+      setHidden(caseEl, true); setHidden(galleryEl, true);
+      setHidden(aboutEl, true); setHidden(formEl, true);
       feedGridEl.scrollTop = 0;
     }
+    function openForm() {
+      /* form abre por cima do about (mantém about-open) */
+      body.classList.add('form-open');
+      setHidden(formEl, false);
+      formEl.scrollTop = 0;
+    }
     function closeOverlay() {
+      /* smart close: se o form está aberto, fecha só ele (volta pro about) */
+      if (body.classList.contains('form-open')) {
+        body.classList.remove('form-open');
+        setHidden(formEl, true);
+        return;
+      }
       body.classList.remove('case-open', 'gallery-open', 'feed-grid-open', 'about-open');
       setHidden(caseEl, true); setHidden(galleryEl, true);
       setHidden(aboutEl, true); setHidden(feedGridEl, true);
@@ -1140,10 +1356,19 @@
       b.addEventListener('click', (e) => { e.preventDefault(); openAbout(); }));
     document.querySelectorAll('[data-action="open-feed-grid"]').forEach(b =>
       b.addEventListener('click', (e) => { e.preventDefault(); openFeedGrid(); }));
+    document.querySelectorAll('[data-action="open-form"]').forEach(b =>
+      b.addEventListener('click', (e) => { e.preventDefault(); openForm(); }));
     document.querySelectorAll('[data-action="close-overlay"]').forEach(b =>
       b.addEventListener('click', (e) => { e.preventDefault(); closeOverlay(); }));
     document.querySelectorAll('[data-action="feed-top"]').forEach(b =>
       b.addEventListener('click', feedScrollTop));
+
+    /* ESC fecha o overlay atual */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && body.className.match(/(case|gallery|feed-grid|about|form)-open/)) {
+        closeOverlay();
+      }
+    });
   </script>
 </body>
 </html>
