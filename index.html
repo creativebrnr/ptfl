@@ -704,11 +704,21 @@
     .about-pair { grid-template-columns: 1fr; }
     .about-pair-image { aspect-ratio: 3 / 4; }
 
-    /* bio gigante escala no mobile */
+    /* bio gigante escala no mobile — +2pt entrelinha */
     .about-bio.giant p {
       font-size: clamp(36px, 9vw, 64px);
-      line-height: 0.9625;
+      line-height: 1.05;
     }
+
+    /* form: reduzir espaço embaixo quando teclado sobe */
+    .form-modal {
+      align-items: flex-start;
+      padding-top: 32px;
+      padding-bottom: calc(var(--pad) + var(--marquee-h) + 16px);
+    }
+
+    /* botões feed/projetos mais próximos */
+    .mobile-toggle { gap: 10px; }
 
     /* CASE MOBILE: pares empilhados; descrição vai de borda a borda */
     .case .case-figure.pair { grid-template-columns: 1fr; }
