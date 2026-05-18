@@ -247,7 +247,8 @@
 
   .scroll-top {
     align-self: center;
-    margin-top: 8px;                      /* respiro após a última publicação */
+    margin-top: 8px;
+    margin-bottom: calc(var(--marquee-h) + 16px);                      /* respiro após a última publicação */
     appearance: none;
     background: none;
     border: none;
@@ -279,7 +280,7 @@
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
-    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h));
+    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 32px);
     z-index: 5;
   }
   .case::-webkit-scrollbar,
@@ -422,7 +423,7 @@
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
-    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h));
+    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 32px);
     z-index: 5;
     display: flex;
     align-items: safe center;             /* centro vertical, mas não corta se passar */
@@ -543,7 +544,7 @@
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
-    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h));
+    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 32px);
     z-index: 5;
   }
   .feed-grid::-webkit-scrollbar { width: 6px; }
@@ -627,7 +628,7 @@
     main[data-view="feed"]     .col.left  { display: none; }
     .col.right {
       border-left: none;
-      padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h));
+      padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 32px);
     }
 
     /* HEADER MOBILE: logo à esquerda, toggle "Projetos e Feed" à direita */
@@ -674,11 +675,13 @@
       color: var(--ink-soft);
       font-size: 12px;
       letter-spacing: 0.04em;
+      display: none;
     }
 
     /* em estado de overlay, esconde logo e toggle; back aparece no left cell */
     body:is(.case-open, .gallery-open, .about-open, .form-open) .bar.top .cell.left .t-projetos { display: none; }
     body:is(.case-open, .gallery-open, .about-open, .form-open) .mobile-toggle { display: none; }
+    body.form-open .marquee-bar { display: none; }
 
     /* MARQUEE: largura total no mobile (já é fixa pela regra base) */
     .marquee-bar { width: 100vw; }
@@ -748,7 +751,7 @@
 
       <div class="mobile-toggle" role="tablist" aria-label="Alternar visualização">
         <button type="button" class="is-active" data-view="projetos" role="tab" aria-selected="true">Projetos</button>
-        <span class="toggle-sep" aria-hidden="true">e</span>
+        <span class="toggle-sep" aria-hidden="true">/</span>
         <button type="button" data-view="feed" role="tab" aria-selected="false">Feed</button>
       </div>
     </header>
