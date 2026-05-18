@@ -406,7 +406,7 @@
   .about-bio.giant p {
     font-size: clamp(48px, 6vw, 80px);
     letter-spacing: 0;
-    line-height: 0.9625;                  /* 77/80 — entrelinha proporcional */
+    line-height: 1.0;                  /* +1pt de entrelinha */
     color: var(--ink);
   }
   .about-bio.giant p + p { margin-top: 0; }
@@ -686,6 +686,7 @@
     body:is(.case-open, .gallery-open, .about-open, .form-open) .mobile-toggle { display: none; }
     body.form-open .marquee-bar { display: none; }
     body.view-feed .marquee-bar { display: none; }
+    body.view-feed .scroll-top { margin-bottom: 16px; }
 
     /* MARQUEE: largura total no mobile (já é fixa pela regra base) */
     .marquee-bar { width: 100vw; }
