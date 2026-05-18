@@ -710,11 +710,13 @@
       line-height: 1.05;
     }
 
-    /* form: reduzir espaço embaixo quando teclado sobe */
+    /* form: ajusta ao teclado virtual com dvh */
     .form-modal {
       align-items: flex-start;
-      padding-top: 32px;
-      padding-bottom: calc(var(--pad) + var(--marquee-h) + 16px);
+      padding-top: 24px;
+      padding-bottom: 24px;
+      min-height: 0;
+      height: 100dvh;
     }
 
     /* botões feed/projetos mais próximos */
