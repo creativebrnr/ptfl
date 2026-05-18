@@ -608,6 +608,18 @@
       text-decoration: underline;
       text-underline-offset: 3px;
     }
+    .marquee-bar {
+      transition: height 0.25s ease, width 0.35s cubic-bezier(.2,.8,.2,1);
+    }
+    .marquee-bar:hover {
+      height: calc(var(--marquee-h) * 1.8);
+    }
+    .marquee-bar:hover .marquee-text {
+      font-size: calc(var(--bar-fs) * 1.5);
+    }
+    .marquee-bar:hover .marquee {
+      transition: font-size 0.25s ease;
+    }
   }
 
   /* ───────── toggle mobile (oculto em desktop) ───────── */
@@ -654,7 +666,7 @@
     .mobile-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 20px;
       font-size: 12px;                    /* +1pt: "Projetos e Feed" */
       letter-spacing: 0.04em;
       line-height: 1;
@@ -685,6 +697,17 @@
 
     /* MARQUEE: largura total no mobile (já é fixa pela regra base) */
     .marquee-bar { width: 100vw; }
+
+    /* ABOUT acessível no feed mobile: posiciona fixed para sair do col.left */
+    main[data-view="feed"] .about,
+    main[data-view="feed"] .form-modal {
+      position: fixed;
+      top: 40px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    main[data-view="feed"] .case { display: none; }
 
     /* HOME MOBILE: thumb + label mais próximos */
     .col-scroll .work-meta { grid-template-columns: 1fr; }
