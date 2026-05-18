@@ -114,7 +114,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
-    padding: var(--pad);
+    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 32px);
     min-height: 0;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
@@ -423,7 +423,7 @@
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
-    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 32px);
+    padding: var(--pad) var(--pad) calc(var(--pad) + var(--marquee-h) + 48px);
     z-index: 5;
     display: flex;
     align-items: safe center;             /* centro vertical, mas não corta se passar */
@@ -603,22 +603,13 @@
   }
   /* efeitos só em dispositivos com mouse — no touch nada trava */
   @media (hover: hover) {
+    .marquee-bar { transition: height 0.25s ease, width 0.35s cubic-bezier(.2,.8,.2,1); }
+    .marquee-bar:hover { height: calc(var(--marquee-h) * 1.8); }
     .marquee-bar:hover .marquee { animation-play-state: paused; }
     .marquee-bar:hover .marquee-text {
+      font-size: calc(var(--bar-fs) * 1.5);
       text-decoration: underline;
       text-underline-offset: 3px;
-    }
-    .marquee-bar {
-      transition: height 0.25s ease, width 0.35s cubic-bezier(.2,.8,.2,1);
-    }
-    .marquee-bar:hover {
-      height: calc(var(--marquee-h) * 1.8);
-    }
-    .marquee-bar:hover .marquee-text {
-      font-size: calc(var(--bar-fs) * 1.5);
-    }
-    .marquee-bar:hover .marquee {
-      transition: font-size 0.25s ease;
     }
   }
 
@@ -666,7 +657,7 @@
     .mobile-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 20px;
+      gap: 12px;
       font-size: 12px;                    /* +1pt: "Projetos e Feed" */
       letter-spacing: 0.04em;
       line-height: 1;
@@ -694,20 +685,10 @@
     body:is(.case-open, .gallery-open, .about-open, .form-open) .bar.top .cell.left .t-projetos { display: none; }
     body:is(.case-open, .gallery-open, .about-open, .form-open) .mobile-toggle { display: none; }
     body.form-open .marquee-bar { display: none; }
+    body.view-feed .marquee-bar { display: none; }
 
     /* MARQUEE: largura total no mobile (já é fixa pela regra base) */
     .marquee-bar { width: 100vw; }
-
-    /* ABOUT acessível no feed mobile: posiciona fixed para sair do col.left */
-    main[data-view="feed"] .about,
-    main[data-view="feed"] .form-modal {
-      position: fixed;
-      top: 40px;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-    main[data-view="feed"] .case { display: none; }
 
     /* HOME MOBILE: thumb + label mais próximos */
     .col-scroll .work-meta { grid-template-columns: 1fr; }
@@ -1301,6 +1282,7 @@
       btn.addEventListener('click', () => {
         const view = btn.dataset.view;
         main.dataset.view = view;
+        document.body.classList.toggle('view-feed', view === 'feed');
         document.querySelectorAll('.mobile-toggle button').forEach(b => {
           const active = b === btn;
           b.classList.toggle('is-active', active);
